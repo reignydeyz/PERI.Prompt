@@ -1,0 +1,45 @@
+﻿@using BLL = PERI.Prompt.BLL
+@using EF = PERI.Prompt.EF
+@{
+    Layout = "~/Views/Shared/Blogger/Form.cshtml";
+}
+
+@{    
+    var settings = ViewBag.Settings as List<EF.Setting>;
+    var smtpSettings = settings.Where(x => x.Group == "Smtp");
+    var recaptchaSettings = settings.Where(x => x.Group == "Recaptcha");
+
+    if (smtpSettings.Count(x => x.Value != null) == smtpSettings.Count())
+    {
+        // Assuming that all smtp fields are filled
+        // This will not require password
+
+        if (recaptchaSettings.Count(x => x.Value != null) == recaptchaSettings.Count())
+        {
+            // Assuming that all recaptcha fields are filled
+            // This will require recaptcha
+            Html.RenderPartial("Partial/SignUpWithoutPasswordAndWithReCaptcha");
+        }
+        else
+        {
+            Html.RenderPartial("Partial/SignUpWithoutPassword");
+        }
+    }
+    else
+    {
+        if (recaptchaSettings.Count(x => x.Value != null) == recaptchaSettings.Count())
+        {
+            // Assuming that all recaptcha fields are filled
+            // This will require recaptcha
+            Html.RenderPartial("Partial/SignUpWithPasswordAndWithReCaptcha");
+        }
+        else
+        {
+            Html.RenderPartial("Partial/SignUpWithPassword");
+        }
+    }
+}
+
+<!-- /.social-auth-links -->
+<br />
+<a href="~/SignIn">Go to sign-in page</a><br>

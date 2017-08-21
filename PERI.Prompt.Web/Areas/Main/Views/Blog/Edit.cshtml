@@ -1,0 +1,113 @@
+﻿@using EF = PERI.Prompt.EF
+@using Core = PERI.Prompt.Core
+@model Tuple<EF.Blog, string, bool>
+@{
+
+    Layout = "~/Views/Shared/Blogger/Main.cshtml";
+}
+
+<!-- bootstrap wysihtml5 - text editor -->
+<link rel="stylesheet" href="~/template/admin/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+
+<link rel="stylesheet" href="~/template/admin/tagsinput/tagsinput.css">
+
+<style>
+    .crop {
+        width: 200px;
+        height: 150px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Edit blog
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        @using (Html.BeginForm("Edit", "Blog", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(x => x.Item1.BlogId)
+                            <div class="form-group">
+                                <label>Title *</label>
+                                @Html.TextBoxFor(x => x.Item1.Title, new { @class = "form-control", placeholder = "Title", required = "", maxlength = "50" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Body *</label>
+                                <div>
+                                    @Html.TextAreaFor(x => x.Item1.Body, new { @class = "textarea", placeholder = "Body", style = "width: 100%; height: 350px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Photo</label>
+
+                                @if (Model.Item1.BlogPhoto.Count() > 0)
+                                {
+                                    <div class="crop">
+                                        <img src="@string.Concat(this.Context.Request.Scheme, "://", this.Context.Request.Host, "/", Model.Item1.BlogPhoto.First().Photo.Url)" style="max-width:100%; max-height:250px" />
+                                    </div>
+                                }
+
+                                <input type="file" name="file" accept="image/*" />
+                                <p class="help-block">Leave file-upload blanked if you don't need to update the photo.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <div>
+                                    @Html.TextBoxFor(x => x.Item2, new { placeholder = "Tags", type = "tags" })
+                                </div>
+                            </div>
+
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBoxFor(x => x.Item3)
+                                    Is active
+                                </label>
+                            </div>
+
+                            <span style="color:red">@Html.ValidationSummary()</span>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a href="#" class="btn btn-default" onclick="window.history.back();">Cancel</a>
+                        }
+                    </div>
+                    <!-- /.col-lg-6 (nested) -->
+                    <!-- /.col-lg-6 (nested) -->
+                </div>
+                <!-- /.row (nested) -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<!-- Bootstrap WYSIHTML5 -->
+<script src="~/template/admin/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+
+<script src="~/template/admin/tagsinput/tagsinput.js"></script>
+
+<script>[].forEach.call(document.querySelectorAll('input[type="tags"]'), tagsInput);</script>
+
+<script>
+    var tagsInput = require('tags-input');
+
+    // create a new tag input:
+    var tags = document.createElement('input');
+    tags.setAttribute('type', 'tags');
+    tagsInput(tags);
+    document.body.appendChild(tags);
+
+    // enhance an existing input:
+    tagsInput(document.querySelector('input[type="tags"]'));
+
+    // or just enhance all tag inputs on the page:
+    [].forEach.call(document.querySelectorAll('input[type="tags"]'), tagsInput);
+</script>

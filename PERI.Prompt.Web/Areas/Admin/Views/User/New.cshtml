@@ -1,0 +1,109 @@
+﻿@using EF = PERI.Prompt.EF
+@using Core = PERI.Prompt.Core
+@using BLL = PERI.Prompt.BLL
+@model Tuple<EF.User, bool>
+@{
+
+    Layout = "~/Views/Shared/Blogger/Main.cshtml";
+}
+
+<script>
+    function randomPassword(length) {
+    var chars = "abcdefghijklmnopqrstuvwxyz!@@#$%^&*()-+<>ABCDEFGHIJKLMNOP1234567890";
+    var pass = "";
+    for (var x = 0; x < length; x++) {
+        var i = Math.floor(Math.random() * chars.length);
+        pass += chars.charAt(i);
+    }
+    return pass;
+}
+</script>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                New user
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        @using (Html.BeginForm("New", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <label>First name *</label>
+                                @Html.TextBoxFor(x => x.Item1.FirstName, new { @class = "form-control", placeholder = "First name", required = "", maxlength = "50" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Last name *</label>
+                                @Html.TextBoxFor(x => x.Item1.LastName, new { @class = "form-control", placeholder = "Last name", required = "", maxlength = "50" })
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <div>
+                                    @Html.TextBoxFor(x => x.Item1.Email, new { @class = "form-control", placeholder = "Email", required = "" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Password *</label>
+                                <div>
+                                    @Html.TextBoxFor(x => x.Item1.PasswordHash, new { @class = "form-control", placeholder = "Password", required = "", type = "password", @readonly = true })
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="show-password">&nbsp;Show password
+                                    <a href="#" style="float:right" id="generate-password">Generate new password</a>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Role *</label>
+                                <div>
+                                    @Html.DropDownListFor(x => x.Item1.RoleId, new BLL.Role(new EF.SampleDbContext()).DropDown(), "--SELECT--", new { @class="form-control", required="" })
+                                </div>
+                            </div>
+
+                            <div class="checkbox">
+                                <label>
+                                    @Html.CheckBoxFor(x => x.Item2)
+                                    Is active
+                                </label>
+                            </div>
+
+                            <span style="color:red">@Html.ValidationSummary()</span>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a href="#" class="btn btn-default" onclick="window.history.back();">Cancel</a>
+                        }
+                    </div>
+                    <!-- /.col-lg-6 (nested) -->
+                    <!-- /.col-lg-6 (nested) -->
+                </div>
+                <!-- /.row (nested) -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<script src="~/template/admin/dist/js/hideShowPassword.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#Item1_PasswordHash").val(randomPassword(12));
+
+        $('#show-password').change(function () {
+            $('#Item1_PasswordHash').hideShowPassword($(this).prop('checked'));
+        });
+
+        $("#generate-password").click(function () {
+            $("#Item1_PasswordHash").val(randomPassword(12));
+            $("#Item1_PasswordHash").prop("readonly", false);
+            $('#Item1_PasswordHash').hideShowPassword(true);
+            $('#show-password').prop("checked", true);
+        });
+    });
+</script>

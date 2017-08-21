@@ -1,0 +1,47 @@
+﻿@using EF = PERI.Prompt.EF
+@model EF.User
+@{
+    Layout = "~/Views/Shared/Blogger/Form.cshtml";
+
+    var config = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Config");
+    var smtp = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Smtp");
+    var recaptcha = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Recaptcha");
+}
+
+<p class="login-box-msg">Sign in to start your session</p>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group has-feedback">
+        @Html.TextBoxFor(x => x.Email, new { placeholder = "Email", type = "email", required = "", @class = "form-control" })
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+        @Html.TextBoxFor(x => x.PasswordHash, new { placeholder = "Password", type = "password", required = "", @class = "form-control" })
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+    </div>
+
+    @Html.ValidationSummary()
+    <div class="row">
+        <!-- /.col -->
+        <div class="col-xs-4">
+            <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        </div>
+        <!-- /.col -->
+    </div>
+}
+
+<!-- /.social-auth-links -->
+<br />
+@if (smtp.Count(x => x.Value != null) == smtp.Count()
+    && recaptcha.Count(x => x.Value != null) == recaptcha.Count())
+{
+    // Assuming that all smtp fields are filled
+    // This will not require password
+    <a href="~/ForgotPassword">I forgot my password</a><br>
+}
+
+@if (config.First(x => x.Key == "Allow signup").Value != "0")
+{
+    <a href="~/SignUp" class="text-center">Register a new membership</a>
+}
