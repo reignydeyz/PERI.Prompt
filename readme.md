@@ -46,7 +46,7 @@ Solution structure:
 
 Database:
 
-1. From SSMS, create Db and run ```Senz.sql```
+1. From SSMS, create Db and run every script in ```scripts``` folder
 
 Additional:
 
