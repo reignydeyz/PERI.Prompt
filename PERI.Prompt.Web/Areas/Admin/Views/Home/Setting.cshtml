@@ -35,7 +35,7 @@
 
                                 <div class="form-group">                                    
                                     @Html.HiddenFor(x => x[cnt].SettingId)
-                                    @if (rec.Required == "true")
+                                    @if (rec.Required == true)
                                     {
                                         <label>@rec.Key *</label>
                                         @Html.TextBoxFor(x => x[cnt].Value, new { @class = "form-control", placeholder = @rec.Key, required = "", maxlength = "50", type=@rec.Type })
