@@ -7,6 +7,8 @@ create table Template
 	constraint UQ_Template_Name unique (Name)
 );
 
+insert into Template values('Default', null)
+
 create table TemplateSetting
 (
 	SettingId integer primary key identity(1,1),
