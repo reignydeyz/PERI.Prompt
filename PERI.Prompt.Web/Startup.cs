@@ -58,6 +58,12 @@ namespace PERI.Prompt.Web
             app.UseMvc(routes =>
             {
                 // Permalinks support
+                routes.MapRoute(
+                    name: "CmsRoute",
+                    template: "{*permalink}",
+                    defaults: new { controller = "Page", action = "Index" },
+                    constraints: new { permalink = new BLL.CmsUrlConstraint() }
+                );
 
                 // Areas support
                 routes.MapRoute(

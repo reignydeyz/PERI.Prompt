@@ -11,9 +11,16 @@ namespace PERI.Prompt.Web.Controllers
     public class PageController : BLL.BaseTemplateController
     {
         // GET: /<controller>/
-        public IActionResult Index(string permalink)
+        public async Task<IActionResult> Index(string permalink)
         {
-            return View();
+            var context = new EF.SampleDbContext();
+
+            var rec = await new BLL.Page(context).Get(new EF.Page { Permalink = permalink });
+
+            if (rec != null)
+                return View(rec);
+            else
+                return StatusCode(404);
         }
     }
 }

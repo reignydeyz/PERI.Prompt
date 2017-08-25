@@ -81,9 +81,9 @@ namespace PERI.Prompt.BLL
             return res;
         }
 
-        public Task<EF.Page> Get(EF.Page args)
+        public async Task<EF.Page> Get(EF.Page args)
         {
-            throw new NotImplementedException();
+            return await context.Page.FirstOrDefaultAsync(x => x.Permalink == args.Permalink);
         }
 
         public async Task<Tuple<EF.Page, bool>> GetModel(int id)
