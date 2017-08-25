@@ -45,7 +45,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public IActionResult New()
         {
             ViewData["Title"] = "Blog/New";
-            var obj = new Tuple<EF.Blog, string, bool>(new EF.Blog(), string.Empty, true);
+            var obj = new Tuple<EF.Blog, string, bool>(new EF.Blog { DatePublished = DateTime.Now }, string.Empty, true);
             return View(obj);
         }
 

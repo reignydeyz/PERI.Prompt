@@ -6,6 +6,10 @@
     Layout = "~/Views/Shared/Blogger/Main.cshtml";
 }
 
+<script type="text/javascript" src="~/template/admin/datetimepicker/js/moment.js"></script>
+<script type="text/javascript" src="~/template/admin/datetimepicker/js/bootstrap-datetimepicker.js"></script>
+<link rel="stylesheet" href="~/template/admin/datetimepicker/css/bootstrap-datetimepicker.css" />
+
 <!-- bootstrap wysihtml5 - text editor -->
 <link rel="stylesheet" href="~/template/admin/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
 
@@ -33,6 +37,13 @@
                                 <label>Body *</label>
                                 <div>
                                     @Html.TextAreaFor(x => x.Item1.Body, new { @class = "textarea", placeholder = "Body", required = "", style = "width: 100%; height: 350px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Date Published *</label>
+                                <div>
+                                    @Html.TextBoxFor(x => x.Item1.DatePublished, new { @class = "form-control", placeholder = "Date Published", required = "" })
                                 </div>
                             </div>
 
@@ -80,6 +91,14 @@
 <script>[].forEach.call(document.querySelectorAll('input[type="tags"]'), tagsInput);</script>
 
 <script>
+    $(document).ready(function () {
+        $(function () {
+            $('#Item1_DatePublished').datetimepicker();
+        });
+    });    
+</script>
+
+<script>
     var tagsInput = require('tags-input');
 
     // create a new tag input:
@@ -93,4 +112,5 @@
 
     // or just enhance all tag inputs on the page:
     [].forEach.call(document.querySelectorAll('input[type="tags"]'), tagsInput);
+
 </script>

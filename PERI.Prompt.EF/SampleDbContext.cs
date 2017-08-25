@@ -47,10 +47,17 @@ namespace PERI.Prompt.EF
                     .HasMaxLength(2000)
                     .IsUnicode(false);
 
+                entity.Property(e => e.DatePublished)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.DatePublished).HasColumnType("datetime");
 
                 entity.Property(e => e.DateCreated).HasColumnType("datetime");
 
