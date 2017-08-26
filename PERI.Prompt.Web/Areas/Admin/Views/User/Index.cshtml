@@ -97,7 +97,7 @@
                                 <td>@(rec.FirstName + " " + rec.LastName)</td>
                                 <td>@rec.Email</td>
                                 <td>@rec.Role.Name</td>
-                                <td>@(String.IsNullOrEmpty(rec.DateInactive))</td>
+                                <td>@(rec.DateInactive == null)</td>
                             </tr>
                         }
 
