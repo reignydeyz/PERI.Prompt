@@ -21,7 +21,7 @@ create table [MenuItem]
 		references Menu (MenuId) on delete cascade
 );
 
-insert into [MenuItem](MenuId, Label, Url, [Order]) values(1, 'Home', '~/', 0);
+insert into [MenuItem](MenuId, Label, Url, [Order]) values(1, 'Home', '/', 0);
 
 create table [ChildMenuItem]
 (
