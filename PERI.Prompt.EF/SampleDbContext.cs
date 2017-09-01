@@ -8,8 +8,10 @@ namespace PERI.Prompt.EF
     public partial class SampleDbContext : DbContext
     {
         public virtual DbSet<Blog> Blog { get; set; }
+        public virtual DbSet<BlogCategory> BlogCategory { get; set; }
         public virtual DbSet<BlogPhoto> BlogPhoto { get; set; }
         public virtual DbSet<BlogTag> BlogTag { get; set; }
+        public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<ChildMenuItem> ChildMenuItem { get; set; }
         public virtual DbSet<Gallery> Gallery { get; set; }
         public virtual DbSet<GalleryPhoto> GalleryPhoto { get; set; }
@@ -47,23 +49,18 @@ namespace PERI.Prompt.EF
                     .HasMaxLength(2000)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DatePublished)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.Property(e => e.DatePublished).HasColumnType("datetime");
 
                 entity.Property(e => e.DateCreated).HasColumnType("datetime");
 
                 entity.Property(e => e.DateInactive).HasColumnType("datetime");
 
                 entity.Property(e => e.DateModified).HasColumnType("datetime");
+
+                entity.Property(e => e.DatePublished).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedBy)
                     .IsRequired()
@@ -74,6 +71,25 @@ namespace PERI.Prompt.EF
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<BlogCategory>(entity =>
+            {
+                entity.HasKey(e => new { e.BlogId, e.CategoryId });
+
+                entity.HasIndex(e => new { e.BlogId, e.CategoryId })
+                    .HasName("UQ_BlogCategory_BlogId_CategoryId")
+                    .IsUnique();
+
+                entity.HasOne(d => d.Blog)
+                    .WithMany(p => p.BlogCategory)
+                    .HasForeignKey(d => d.BlogId)
+                    .HasConstraintName("FK_BlogCategory_Blog");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.BlogCategory)
+                    .HasForeignKey(d => d.CategoryId)
+                    .HasConstraintName("FK_BlogCategory_Category");
             });
 
             modelBuilder.Entity<BlogPhoto>(entity =>
@@ -112,6 +128,30 @@ namespace PERI.Prompt.EF
                     .WithMany(p => p.BlogTag)
                     .HasForeignKey(d => d.TagId)
                     .HasConstraintName("FK_BlogTag_Tag");
+            });
+
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DateCreated).HasColumnType("datetime");
+
+                entity.Property(e => e.DateInactive).HasColumnType("datetime");
+
+                entity.Property(e => e.DateModified).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<ChildMenuItem>(entity =>
@@ -242,11 +282,11 @@ namespace PERI.Prompt.EF
             modelBuilder.Entity<Page>(entity =>
             {
                 entity.HasIndex(e => e.Permalink)
-                    .HasName("UQ__Page__58FFE9640857E42B")
+                    .HasName("UQ__Page__58FFE964DD80456D")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Title)
-                    .HasName("UQ__Page__2CB664DCD3541211")
+                    .HasName("UQ__Page__2CB664DCBEA2728B")
                     .IsUnique();
 
                 entity.Property(e => e.Content)

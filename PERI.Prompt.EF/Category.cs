@@ -3,19 +3,15 @@ using System.Collections.Generic;
 
 namespace PERI.Prompt.EF
 {
-    public partial class Blog
+    public partial class Category
     {
-        public Blog()
+        public Category()
         {
             BlogCategory = new HashSet<BlogCategory>();
-            BlogPhoto = new HashSet<BlogPhoto>();
-            BlogTag = new HashSet<BlogTag>();
         }
 
-        public int BlogId { get; set; }
-        public string Title { get; set; }
-        public string Body { get; set; }
-        public DateTime DatePublished { get; set; }
+        public int CategoryId { get; set; }
+        public string Name { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }
         public string ModifiedBy { get; set; }
@@ -23,7 +19,5 @@ namespace PERI.Prompt.EF
         public DateTime? DateInactive { get; set; }
 
         public ICollection<BlogCategory> BlogCategory { get; set; }
-        public ICollection<BlogPhoto> BlogPhoto { get; set; }
-        public ICollection<BlogTag> BlogTag { get; set; }
     }
 }
