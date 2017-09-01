@@ -19,7 +19,9 @@ create table Category
 	DateCreated datetime not null,
 	ModifiedBy varchar(50) not null,
 	DateModified datetime not null,
-    DateInactive datetime null
+    DateInactive datetime null,
+	
+	constraint UQ_Category_Name unique (Name)
 );
 
 insert into Category(Name, CreatedBy, DateCreated, ModifiedBy, DateModified) values('Default', 'system', getdate(), 'system', getdate() );
