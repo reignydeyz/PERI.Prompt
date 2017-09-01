@@ -11,6 +11,33 @@ create table [Blog]
     DateInactive datetime null
 );
 
+create table Category
+(
+	CategoryId  integer primary key identity(1,1),
+	Name  varchar(50) not null,
+	CreatedBy varchar(50) not null,
+	DateCreated datetime not null,
+	ModifiedBy varchar(50) not null,
+	DateModified datetime not null,
+    DateInactive datetime null
+);
+
+insert into Category(Name, CreatedBy, DateCreated, ModifiedBy, DateModified) values('Default', 'system', getdate(), 'system', getdate() );
+
+create table BlogCategory
+(
+	BlogId int not null,
+	CategoryId int not null,
+
+	primary key(BlogId, CategoryId),	
+
+	constraint UQ_BlogCategory_BlogId_CategoryId unique (BlogId, CategoryId),
+	constraint FK_BlogCategory_Blog foreign key (BlogId)
+		references [Blog] (BlogId) on delete cascade,
+	constraint FK_BlogCategory_Category foreign key (CategoryId)
+		references [Category] (CategoryId) on delete cascade
+);
+
 create table BlogTag
 (
 	BlogId int not null,
