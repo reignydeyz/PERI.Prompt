@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,16 +43,23 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             return View();
         }
 
-        public IActionResult New()
-        {
+        public async Task<IActionResult> New()
+        {            
             ViewData["Title"] = "Blog/New";
-            var obj = new Tuple<EF.Blog, string, bool>(new EF.Blog { DatePublished = DateTime.Now }, string.Empty, true);
+            
+            var context = new EF.SampleDbContext();
+            var dict = new Dictionary<string, bool>();
+            var categories = await new BLL.Category(context).Find(new EF.Category());
+            foreach (var c in categories)
+                dict.Add(c.Name, false);
+
+            var obj = new Tuple<EF.Blog, string, bool, Dictionary<string, bool>>(new EF.Blog { DatePublished = DateTime.Now }, string.Empty, true, dict);
             return View(obj);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, IFormFile file)
+        public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, [Bind(Prefix = "Item4")] Dictionary<string, bool> categories, IFormFile file)
         {
             ViewData["Title"] = "Blog/New";
 
@@ -68,6 +76,13 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                 model.DateInactive = null;
 
             var id = await bblog.Add(model);
+
+            // Add BlogCategory
+            foreach (var category in categories)
+            {
+                var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
+                await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
+            }
 
             // Add Photo
             IFormFile uploadedImage = file;
