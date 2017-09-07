@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using PERI.Prompt.EF;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
@@ -48,14 +50,20 @@ namespace PERI.Prompt.BLL
             throw new NotImplementedException();
         }
 
+        public async Task Delete(List<EF.BlogCategory> args)
+        {
+            context.RemoveRange(args);
+            await context.SaveChangesAsync();
+        }
+
         public Task Edit(EF.BlogCategory args)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<EF.BlogCategory>> Find(EF.BlogCategory args)
+        public async Task<IEnumerable<EF.BlogCategory>> Find(EF.BlogCategory args)
         {
-            throw new NotImplementedException();
+            return await context.BlogCategory.Where(x => x.BlogId == args.BlogId).ToListAsync();
         }
 
         public Task<EF.BlogCategory> Get(EF.BlogCategory args)

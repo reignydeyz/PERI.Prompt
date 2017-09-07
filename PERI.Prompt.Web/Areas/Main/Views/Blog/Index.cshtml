@@ -62,6 +62,7 @@
                             <th class="head0" style="text-align: center; width: 5%"><input type="checkbox" id="checkall" /></th>
                             <th class="head0" style="text-align: center; width: 5%"></th>
                             <th>Title</th>
+                            <th>Categories</th>
                             <th>Author</th>
                             <th>Tags</th>
                             <th>Active</th>
@@ -86,6 +87,7 @@
 
                                 </td>
                                 <td>@rec.Title</td>
+                                <td>@String.Join(",", rec.BlogCategory.Select(x => x.Category.Name))</td>
                                 <td>@rec.CreatedBy</td>
                                 <td>@String.Join(",", rec.BlogTag.Select(x => x.Tag.Name))</td>
                                 <td>@(rec.DateInactive == null)</td>

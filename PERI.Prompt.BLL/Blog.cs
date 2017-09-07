@@ -75,6 +75,7 @@ namespace PERI.Prompt.BLL
             var res = await (from c in context.Blog
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
+                    .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
                         where c.Title.Contains(args.Title ?? string.Empty)
                         && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
                         select c).ToListAsync();
@@ -87,16 +88,27 @@ namespace PERI.Prompt.BLL
             throw new NotImplementedException();
         }
 
-        public Tuple<EF.Blog, string, bool> GetModel(int id)
+        public Tuple<EF.Blog, string, bool, Dictionary<string, bool>> GetModel(int id)
         {
             var rec = context.Blog
             .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
             .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
+            .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
             .First(x => x.BlogId == id);
 
             var csv = String.Join(",", rec.BlogTag.Select(x => x.Tag.Name));
 
-            return new Tuple<EF.Blog, string, bool>(rec, csv, rec.DateInactive == null);
+            var dict = new Dictionary<string, bool>();
+            var categories = from c in context.Category
+                             join bc in rec.BlogCategory on c.CategoryId equals bc.CategoryId into jointable
+                             from z in jointable.DefaultIfEmpty()
+                             select new
+                             {
+                                 Key = c.Name,
+                                 Value = z != null
+                             };
+
+            return new Tuple<EF.Blog, string, bool, Dictionary<string, bool>>(rec, csv, rec.DateInactive == null, categories.ToDictionary(x => x.Key, x => x.Value));
         }
     }
 }

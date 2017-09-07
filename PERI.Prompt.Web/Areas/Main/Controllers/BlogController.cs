@@ -78,7 +78,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             var id = await bblog.Add(model);
 
             // Add BlogCategory
-            foreach (var category in categories)
+            foreach (var category in categories.Where(x => x.Value == true))
             {
                 var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
                 await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
@@ -121,13 +121,25 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, IFormFile file)
+        public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, [Bind(Prefix = "Item4")] Dictionary<string, bool> categories, IFormFile file)
         {
             ViewData["Title"] = "Blog/Edit";
 
             var context = new EF.SampleDbContext();
 
             model.ModifiedBy = User.Identity.Name;
+
+            // Update Category
+            // Delete all
+            var bblogcategory = new BLL.BlogCategory(context);
+            var cats = await bblogcategory.Find(new EF.BlogCategory { BlogId = model.BlogId });
+            await bblogcategory.Delete(cats.ToList());
+            // Add
+            foreach (var category in categories.Where(x => x.Value == true))
+            {
+                var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
+                await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = model.BlogId, CategoryId = c.CategoryId });
+            }
 
             // Update Blog
             if (!isactive)
