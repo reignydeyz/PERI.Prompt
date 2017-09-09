@@ -62,7 +62,14 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Category> Get(EF.Category args)
         {
-            var rec = await context.Category.FirstAsync(x => x.Name == args.Name);
+            var rec = await (from c in context.Category
+                      .Include(x => x.BlogCategory).ThenInclude(x => x.Blog)
+                      .ThenInclude(x => x.BlogPhoto).ThenInclude(x => x.Photo)
+
+                      .Include(x => x.BlogCategory).ThenInclude(x => x.Blog)
+                      .ThenInclude(x => x.BlogTag).ThenInclude(x => x.Tag)
+                             where c.Name == args.Name
+                             select c).FirstAsync();
             return rec;
         }
     }
