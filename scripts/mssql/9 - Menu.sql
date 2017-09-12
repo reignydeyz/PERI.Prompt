@@ -6,7 +6,9 @@ create table [Menu]
 	constraint UQ_Menu_Name unique (Name)
 );
 
-insert into [Menu](Name) values('System');
+insert into [Menu](Name) values('Homepage');
+insert into [Menu](Name) values('Header');
+insert into [Menu](Name) values('Footer');
 
 create table [MenuItem]
 (
