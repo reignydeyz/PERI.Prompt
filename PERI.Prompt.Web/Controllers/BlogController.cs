@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PERI.Prompt.Web.Controllers
 {
-    public class BlogController : Controller
+    public class BlogController : BLL.BaseTemplateController
     {
         // GET: /<controller>/
         public IActionResult Index()
