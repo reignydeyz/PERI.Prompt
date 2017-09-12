@@ -15,11 +15,11 @@ namespace PERI.Prompt.BLL
             {
                 var template = context.Template.First(x => x.DateInactive == null);
 
-                ViewBag.Categories = context.Category.Include(x => x.BlogCategory);
+                ViewBag.Categories = context.Category.Include(x => x.BlogCategory).ToList();
 
                 ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
 
-                ViewBag.Tags = context.Tag.Include(x => x.BlogTag);
+                ViewBag.Tags = context.Tag.Include(x => x.BlogTag).ToList();
 
                 ViewBag.Sections = context.Section
                     .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
