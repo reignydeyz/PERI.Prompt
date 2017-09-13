@@ -11,22 +11,32 @@ namespace PERI.Prompt.Web.Controllers
     public class BlogController : BLL.BaseTemplateController
     {
         // GET: /<controller>/
-        public IActionResult Index()
+        /// <summary>
+        /// Views the whole content of the Blog
+        /// </summary>
+        /// <param name="categoryName"></param>
+        /// <param name="blogId"></param>
+        /// <returns></returns>
+        [Route("Category/{categoryName}/{blogId}")]
+        public IActionResult Index(string categoryName, int blogId)
         {
-            return View();
+            var context = new EF.SampleDbContext();
+
+            var obj = new BLL.Blog(context).GetModel(blogId);
+            return View(obj);
         }
 
         /// <summary>
         /// Gets the whole detail of the Category including its Blogs
         /// </summary>
-        /// <param name="id">Id represents the name of the Category</param>
+        /// <param name="categoryName"></param>
         /// <returns></returns>
-        [Route("Category/{id}")]
-        public async Task<IActionResult> Category(string id)
+        [Route("Category/{categoryName}")]
+        public async Task<IActionResult> Category(string categoryName)
         {
             var context = new EF.SampleDbContext();
 
-            var category = await new BLL.Category(context).Get(new EF.Category { Name = id });
+            var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
 
             // Will only get 100 blogs per Category request
             return View(category.BlogCategory.Take(100));
