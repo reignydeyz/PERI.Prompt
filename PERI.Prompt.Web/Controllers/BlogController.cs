@@ -17,7 +17,7 @@ namespace PERI.Prompt.Web.Controllers
         /// <param name="categoryName"></param>
         /// <param name="blogId"></param>
         /// <returns></returns>
-        [Route("Category/{categoryName}/{blogId}")]
+        [Route("Category/{categoryName}/{blogId:int}")]
         public IActionResult Index(string categoryName, int blogId)
         {
             var context = new EF.SampleDbContext();
