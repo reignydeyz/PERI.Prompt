@@ -76,16 +76,22 @@ namespace PERI.Prompt.BLL
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
-                        where c.Title.Contains(args.Title ?? string.Empty)
-                        && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
-                        select c).ToListAsync();
+                             where c.Title.Contains(args.Title ?? string.Empty)
+                             && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
+                             select c).ToListAsync();
 
             return res;
         }
 
-        public Task<EF.Blog> Get(EF.Blog args)
+        public async Task<EF.Blog> Get(EF.Blog args)
         {
-            throw new NotImplementedException();
+            var rec = await context.Blog
+                    .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
+                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
+                    .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
+                    .FirstOrDefaultAsync(x => x.BlogId == args.BlogId);
+
+            return rec;
         }
 
         public Tuple<EF.Blog, string, bool, Dictionary<string, bool>> GetModel(int id)

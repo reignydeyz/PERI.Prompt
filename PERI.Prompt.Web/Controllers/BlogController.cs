@@ -18,11 +18,11 @@ namespace PERI.Prompt.Web.Controllers
         /// <param name="blogId"></param>
         /// <returns></returns>
         [Route("Category/{categoryName}/Blog/{blogId:int}")]
-        public IActionResult Index(string categoryName, int blogId)
+        public async Task<IActionResult> Index(string categoryName, int blogId)
         {
             var context = new EF.SampleDbContext();
 
-            var obj = new BLL.Blog(context).GetModel(blogId);
+            var obj = await new BLL.Blog(context).Get(new EF.Blog { BlogId = blogId });
             return View(obj);
         }
 
