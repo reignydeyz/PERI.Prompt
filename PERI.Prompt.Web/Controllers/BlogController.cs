@@ -38,8 +38,7 @@ namespace PERI.Prompt.Web.Controllers
 
             var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
 
-            // Will only get 100 blogs per Category request
-            return View(category.BlogCategory.Take(100));
+            return View(category);
         }
     }
 }
