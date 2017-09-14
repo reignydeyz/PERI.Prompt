@@ -37,8 +37,9 @@ namespace PERI.Prompt.Web.Controllers
             var context = new EF.SampleDbContext();
 
             var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
+            var blogs = await new BLL.Blog(context).FindByCategoryId(category.CategoryId);
 
-            return View(category);
+            return View(new Tuple<EF.Category, List<EF.Blog>>(category, blogs.ToList()));
         }
     }
 }
