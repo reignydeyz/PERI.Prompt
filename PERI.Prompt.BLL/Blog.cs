@@ -83,6 +83,20 @@ namespace PERI.Prompt.BLL
             return res;
         }
 
+        public async Task<IEnumerable<EF.Blog>> FindByCategoryId(int id)
+        {
+            var res = await (from b in context.Blog
+                    .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
+                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
+                    .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
+                    join bc in context.BlogCategory on b.BlogId equals bc.BlogId
+                    join c in context.Category on bc.CategoryId equals c.CategoryId
+                    where c.CategoryId == id
+                             select b).OrderByDescending(x => x.DatePublished).Take(100).ToListAsync();
+
+            return res;
+        }
+
         public async Task<EF.Blog> Get(EF.Blog args)
         {
             var rec = await context.Blog
