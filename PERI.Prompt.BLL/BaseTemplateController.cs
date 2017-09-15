@@ -21,11 +21,11 @@ namespace PERI.Prompt.BLL
                                      join bc in context.BlogCategory on c.CategoryId equals bc.CategoryId
                                      join b in context.Blog.Where(x => x.DateInactive == null) on bc.BlogId equals b.BlogId
                                      group c by new { c.CategoryId, c.Name } into g
-                                     select new
+                                     select new CategoryBlogs
                                      {
-                                         g.Key.CategoryId,
-                                         g.Key.Name,
-                                         Blogs = g.Count()
+                                         CategoryId = g.Key.CategoryId,
+                                         CategoryName = g.Key.Name,
+                                         BlogCount = g.Count()
                                      };
 
                 ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
