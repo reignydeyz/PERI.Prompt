@@ -23,7 +23,11 @@ namespace PERI.Prompt.Web.Controllers
             var context = new EF.SampleDbContext();
 
             var obj = await new BLL.Blog(context).Get(new EF.Blog { BlogId = blogId });
-            return View(obj);
+
+            if (obj != null && obj.DatePublished <= DateTime.Now)
+                return View(obj);
+            else
+                return StatusCode(403);
         }
 
         /// <summary>
