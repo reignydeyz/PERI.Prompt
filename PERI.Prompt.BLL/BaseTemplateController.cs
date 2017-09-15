@@ -15,7 +15,18 @@ namespace PERI.Prompt.BLL
             {
                 var template = context.Template.First(x => x.DateInactive == null);
 
-                ViewBag.Categories = context.Category.Include(x => x.BlogCategory).ToList();
+                ViewBag.LatestBlogs = context.Blog.Where(x => x.DateInactive == null).Take(5);
+
+                ViewBag.Categories = from c in context.Category.Where(x => x.DateInactive == null)
+                                     join bc in context.BlogCategory on c.CategoryId equals bc.CategoryId
+                                     join b in context.Blog.Where(x => x.DateInactive == null) on bc.BlogId equals b.BlogId
+                                     group c by new { c.CategoryId, c.Name } into g
+                                     select new
+                                     {
+                                         g.Key.CategoryId,
+                                         g.Key.Name,
+                                         Blogs = g.Count()
+                                     };
 
                 ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
 
