@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\Main\Controllers\" />
-    <Folder Include="Areas\Main\Views\" />
     <Folder Include="Models\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
