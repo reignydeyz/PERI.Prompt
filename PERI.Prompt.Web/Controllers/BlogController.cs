@@ -43,7 +43,12 @@ namespace PERI.Prompt.Web.Controllers
             var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
             var blogs = await new BLL.Blog(context).FindByCategoryId(category.CategoryId);
 
-            return View(new Tuple<EF.Category, List<EF.Blog>>(category, blogs.ToList()));
+            var page = Convert.ToInt16(Request.Query["page"]);
+            var pager = new Core.Pager(blogs.Count(), page == 0 ? 1 : page);
+
+            blogs = blogs.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize);
+
+            return View(new Tuple<EF.Category, Core.Pager, List<EF.Blog>>(category, pager, blogs.ToList()));
         }
     }
 }

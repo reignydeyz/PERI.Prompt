@@ -4,6 +4,10 @@ using System.Text;
 
 namespace PERI.Prompt.Core
 {
+    /// <summary>
+    /// Pagination logic similar to what you see in Google search results
+    /// <see cref="http://jasonwatmore.com/post/2015/10/30/aspnet-mvc-pagination-example-with-logic-like-google"/>
+    /// </summary>
     public class Pager
     {
         public Pager(int totalItems, int? page, int pageSize = 10)
