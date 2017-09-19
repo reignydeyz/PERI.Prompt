@@ -92,7 +92,7 @@ namespace PERI.Prompt.BLL
                     join bc in context.BlogCategory on b.BlogId equals bc.BlogId
                     join c in context.Category on bc.CategoryId equals c.CategoryId
                     where c.CategoryId == id
-                             select b).OrderByDescending(x => x.DatePublished).Take(100).ToListAsync();
+                             select b).OrderByDescending(x => x.DatePublished).ToListAsync();
 
             return res;
         }
