@@ -64,7 +64,7 @@ namespace PERI.Prompt.BLL
         {
             var rec = await (from c in context.Category
                              where c.Name == args.Name
-                             select c).FirstAsync();
+                             select c).FirstOrDefaultAsync();
             return rec;
         }
     }
