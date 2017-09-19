@@ -41,7 +41,13 @@ namespace PERI.Prompt.Web.Controllers
             var context = new EF.SampleDbContext();
 
             var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
-            var blogs = await new BLL.Blog(context).FindByCategoryId(category.CategoryId);
+
+            if (category == null)
+                return StatusCode(404);
+            else if (category.DateInactive != null)
+                return StatusCode(403);
+
+            var blogs = (await new BLL.Blog(context).FindByCategoryId(category.CategoryId)).Where(x => x.DateInactive == null);
 
             var page = Convert.ToInt16(Request.Query["page"]);
             var pager = new Core.Pager(blogs.Count(), page == 0 ? 1 : page);
