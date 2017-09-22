@@ -34,7 +34,10 @@ namespace PERI.Prompt.BLL
 
                 ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
 
-                ViewBag.Tags = context.Tag.Include(x => x.BlogTag).ToList();
+                ViewBag.Tags = context.Tag.Include(x => x.BlogTag)
+                    .Where(x => x.BlogTag.Count() > 0)
+                    .OrderByDescending(x => x.BlogTag.Count())
+                    .ToList();
 
                 ViewBag.Sections = context.Section
                     .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
