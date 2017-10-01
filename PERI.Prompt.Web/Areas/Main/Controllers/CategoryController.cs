@@ -61,6 +61,10 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             try
             {
                 model.CreatedBy = User.Identity.Name;
+
+                if (!isactive)
+                    model.DateInactive = DateTime.Now;
+
                 await new BLL.Category(context).Add(model);
                 return Redirect("~/Main/Category");
             }
@@ -91,6 +95,80 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
             var obj = await new BLL.Category(context).GetModel(id);
             return View(obj);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.Category model, [Bind(Prefix = "Item2")] bool isactive)
+        {
+            ViewData["Title"] = "Category/Edit";
+
+            var context = new EF.SampleDbContext();
+
+            try
+            {
+                model.ModifiedBy = User.Identity.Name;
+
+                if (!isactive)
+                    model.DateInactive = DateTime.Now;
+
+                await new BLL.Category(context).Edit(model);
+                return Redirect("~/Main/Category");
+            }
+            catch (DbUpdateException ex)
+            {
+                ModelState.AddModelError(string.Empty, "Entry is causing conflict to other records.");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(new EF.SampleDbContext()).Find(new EF.BlogSortOrder())).ToList();
+
+            var obj = new Tuple<EF.Category, bool>(model, isactive);
+
+            return View(obj);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] int[] ids)
+        {
+            var context = new EF.SampleDbContext();
+
+            var bcategory = new BLL.Category(context);            
+
+            await bcategory.Delete(ids);
+
+            return Json("Success!");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> Activate([FromBody] int[] ids)
+        {
+            var context = new EF.SampleDbContext();
+
+            var bcategory = new BLL.Category(context);
+
+            await bcategory.Activate(ids);
+
+            return Json("Success!");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> Deactivate([FromBody] int[] ids)
+        {
+            var context = new EF.SampleDbContext();
+
+            var bcategory = new BLL.Category(context);
+
+            await bcategory.Deactivate(ids);
+
+            return Json("Success!");
         }
     }
 }

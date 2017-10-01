@@ -61,7 +61,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.Page args)
         {
-            var rec = context.Page.First(x => x.PageId == args.PageId);
+            var rec = await context.Page.FirstAsync(x => x.PageId == args.PageId);
             rec.Title = args.Title;
             rec.Permalink = args.Permalink;
             rec.Content = args.Content;

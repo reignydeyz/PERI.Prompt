@@ -15,9 +15,13 @@ namespace PERI.Prompt.BLL
             context = dbcontext;
         }
 
-        public Task Activate(int[] ids)
+        public async Task Activate(int[] ids)
         {
-            throw new NotImplementedException();
+            var res = context.Category.Where(x => ids.Contains(x.CategoryId));
+
+            await res.ForEachAsync(x => x.DateInactive = null);
+
+            await context.SaveChangesAsync();
         }
 
         public async Task<int> Add(EF.Category args)
@@ -33,9 +37,13 @@ namespace PERI.Prompt.BLL
             return args.CategoryId;
         }
 
-        public Task Deactivate(int[] ids)
+        public async Task Deactivate(int[] ids)
         {
-            throw new NotImplementedException();
+            var res = context.Category.Where(x => ids.Contains(x.CategoryId));
+
+            await res.ForEachAsync(x => x.DateInactive = DateTime.Now);
+
+            await context.SaveChangesAsync();
         }
 
         public Task Delete(int id)
@@ -43,9 +51,10 @@ namespace PERI.Prompt.BLL
             throw new NotImplementedException();
         }
 
-        public Task Delete(int[] ids)
+        public async Task Delete(int[] ids)
         {
-            throw new NotImplementedException();
+            context.Category.RemoveRange(context.Category.Where(x => ids.Contains(x.CategoryId)));
+            await context.SaveChangesAsync();
         }
 
         public Task Delete(EF.Category args)
@@ -53,9 +62,15 @@ namespace PERI.Prompt.BLL
             throw new NotImplementedException();
         }
 
-        public Task Edit(EF.Category args)
+        public async Task Edit(EF.Category args)
         {
-            throw new NotImplementedException();
+            var rec = context.Category.First(x => x.CategoryId == args.CategoryId);
+
+            rec.Name = args.Name;
+            rec.BlogSortOrderId = args.BlogSortOrderId;
+            rec.DateModified = DateTime.Now;
+            rec.DateInactive = args.DateInactive;
+            await context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<EF.Category>> Find(EF.Category args)
