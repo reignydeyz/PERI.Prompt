@@ -10,6 +10,7 @@ namespace PERI.Prompt.EF
         public virtual DbSet<Blog> Blog { get; set; }
         public virtual DbSet<BlogCategory> BlogCategory { get; set; }
         public virtual DbSet<BlogPhoto> BlogPhoto { get; set; }
+        public virtual DbSet<BlogSortOrder> BlogSortOrder { get; set; }
         public virtual DbSet<BlogTag> BlogTag { get; set; }
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<ChildMenuItem> ChildMenuItem { get; set; }
@@ -46,7 +47,6 @@ namespace PERI.Prompt.EF
             {
                 entity.Property(e => e.Body)
                     .IsRequired()
-                    .HasMaxLength(2000)
                     .IsUnicode(false);
 
                 entity.Property(e => e.CreatedBy)
@@ -111,6 +111,14 @@ namespace PERI.Prompt.EF
                     .HasConstraintName("FK_BlogPhoto_Photo");
             });
 
+            modelBuilder.Entity<BlogSortOrder>(entity =>
+            {
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<BlogTag>(entity =>
             {
                 entity.HasKey(e => new { e.BlogId, e.TagId });
@@ -132,6 +140,10 @@ namespace PERI.Prompt.EF
 
             modelBuilder.Entity<Category>(entity =>
             {
+                entity.HasIndex(e => e.Name)
+                    .HasName("UQ_Category_Name")
+                    .IsUnique();
+
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -152,6 +164,11 @@ namespace PERI.Prompt.EF
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.HasOne(d => d.BlogSortOrder)
+                    .WithMany(p => p.Category)
+                    .HasForeignKey(d => d.BlogSortOrderId)
+                    .HasConstraintName("FK_Category_BlogSortOrder");
             });
 
             modelBuilder.Entity<ChildMenuItem>(entity =>
@@ -282,16 +299,15 @@ namespace PERI.Prompt.EF
             modelBuilder.Entity<Page>(entity =>
             {
                 entity.HasIndex(e => e.Permalink)
-                    .HasName("UQ__Page__58FFE964DD80456D")
+                    .HasName("UQ__Page__58FFE9648D1D49D0")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Title)
-                    .HasName("UQ__Page__2CB664DCBEA2728B")
+                    .HasName("UQ__Page__2CB664DC28EEFF64")
                     .IsUnique();
 
                 entity.Property(e => e.Content)
                     .IsRequired()
-                    .HasMaxLength(2000)
                     .IsUnicode(false);
 
                 entity.Property(e => e.CreatedBy)

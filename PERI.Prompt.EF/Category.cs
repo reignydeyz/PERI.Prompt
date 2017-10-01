@@ -11,6 +11,7 @@ namespace PERI.Prompt.EF
         }
 
         public int CategoryId { get; set; }
+        public int BlogSortOrderId { get; set; }
         public string Name { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }
@@ -18,6 +19,7 @@ namespace PERI.Prompt.EF
         public DateTime DateModified { get; set; }
         public DateTime? DateInactive { get; set; }
 
+        public BlogSortOrder BlogSortOrder { get; set; }
         public ICollection<BlogCategory> BlogCategory { get; set; }
     }
 }
