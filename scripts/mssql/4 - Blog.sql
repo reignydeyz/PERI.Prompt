@@ -11,9 +11,23 @@ create table [Blog]
     DateInactive datetime null
 );
 
+create table [BlogSortOrder]
+(
+	BlogSortOrderId  integer primary key identity(1,1),
+	Name  varchar(50) not null
+);
+
+insert into BlogSortOrder values('Asynchronous by DateCreated');
+insert into BlogSortOrder values('Desynchronous by DateCreated');
+insert into BlogSortOrder values('Asynchronous by DatePublished');
+insert into BlogSortOrder values('Desynchronous by DatePublished');
+insert into BlogSortOrder values('Asynchronous by Title');
+insert into BlogSortOrder values('Desynchronous by Title');
+
 create table Category
 (
 	CategoryId  integer primary key identity(1,1),
+	BlogSortOrderId int not null,
 	Name  varchar(50) not null,
 	CreatedBy varchar(50) not null,
 	DateCreated datetime not null,
@@ -21,10 +35,12 @@ create table Category
 	DateModified datetime not null,
     DateInactive datetime null,
 	
-	constraint UQ_Category_Name unique (Name)
+	constraint UQ_Category_Name unique (Name),
+	constraint FK_Category_BlogSortOrder foreign key (BlogSortOrderId)
+		references [BlogSortOrder] (BlogSortOrderId) on delete cascade
 );
 
-insert into Category(Name, CreatedBy, DateCreated, ModifiedBy, DateModified) values('Default', 'system', getdate(), 'system', getdate() );
+insert into Category(BlogSortOrderId, Name, CreatedBy, DateCreated, ModifiedBy, DateModified) values(4, 'Default', 'system', getdate(), 'system', getdate() );
 
 create table BlogCategory
 (

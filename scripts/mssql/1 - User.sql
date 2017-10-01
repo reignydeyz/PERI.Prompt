@@ -5,7 +5,8 @@ create table [Role]
 );
 
 insert into [Role](Name) values('Admin');
-insert into [Role](Name) values('User');
+insert into [Role](Name) values('Blogger');
+insert into [Role](Name) values('Reader');
 
 create table [User]
 (

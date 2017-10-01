@@ -11,6 +11,7 @@ create table [Setting]
 
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Config', 'Max user','0', 'number', 1, 'true');
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Config', 'Allow signup','0', 'number', 1, 'true');
+insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Config', 'Default RoleId','3', 'number', 1, 'true');
 
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Smtp', 'Smtp server', null,'text',  2, 'false');
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Smtp', 'Smtp port',null,'number',  2, 'false');
