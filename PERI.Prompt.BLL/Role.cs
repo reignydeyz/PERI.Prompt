@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
@@ -30,6 +33,11 @@ namespace PERI.Prompt.BLL
                 ddItem.Add(new Core.DropDownList.Item(obj.Name, obj.RoleId.ToString()));
 
             return new SelectList(ddItem, "Value", "Text", selectedVal);
+        }
+
+        public async Task<EF.Role> GetById(int id)
+        {
+            return await context.Role.FirstAsync(x => x.RoleId == id);
         }
     }
 }

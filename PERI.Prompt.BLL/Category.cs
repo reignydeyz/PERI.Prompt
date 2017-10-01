@@ -20,9 +20,17 @@ namespace PERI.Prompt.BLL
             throw new NotImplementedException();
         }
 
-        public Task<int> Add(EF.Category args)
+        public async Task<int> Add(EF.Category args)
         {
-            throw new NotImplementedException();
+            context.Category.Add(args);
+            
+            args.DateCreated = DateTime.Now;
+            args.ModifiedBy = args.CreatedBy;
+            args.DateModified = args.DateCreated;
+
+            await context.SaveChangesAsync();
+
+            return args.CategoryId;
         }
 
         public Task Deactivate(int[] ids)
@@ -66,6 +74,14 @@ namespace PERI.Prompt.BLL
                              where c.Name == args.Name
                              select c).FirstOrDefaultAsync();
             return rec;
+        }
+
+        public async Task<Tuple<EF.Category, bool>> GetModel(int id)
+        {
+            var rec = await context.Category
+                .FirstAsync(x => x.CategoryId == id);
+
+            return new Tuple<EF.Category, bool>(rec, rec.DateInactive == null);
         }
     }
 }
