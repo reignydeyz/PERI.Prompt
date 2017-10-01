@@ -173,17 +173,22 @@ namespace PERI.Prompt.Web.Controllers
         {
             try
             {
+                var context = new EF.SampleDbContext();
+
+                var configs = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Config");
+                var roleId = Convert.ToInt16(configs.First(x => x.Key == "Default RoleId").Value);
+                var role = (await new BLL.Role(context).GetById(roleId)).Name;
+
                 if (!ModelState.IsValid)
                     return View("SignUp", args);
-
-                var context = new EF.SampleDbContext();
 
                 // Add user
                 args.DateCreated = DateTime.Now;
                 await new BLL.User(context).Add(args);
 
                 // Asign role
-                args.Role = new EF.Role { RoleId = 2, Name = "User" };
+                args.RoleId = roleId;
+                args.Role = new EF.Role { RoleId = roleId, Name = role };
 
                 await AddClaimsAndSignIn(args);
 
