@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace PERI.Prompt.Web.Areas.Admin.Controllers
 {
     [Area("Main")]
-    [Authorize]
+    [Authorize(Roles = "Admin,Blogger")]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class GalleryController : BLL.BaseController
     {

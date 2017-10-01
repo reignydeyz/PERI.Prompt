@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace PERI.Prompt.Web.Areas.Main.Controllers
 {
     [Area("Main")]
-    [Authorize]
+    [Authorize(Roles ="Admin,Blogger")]
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class AccountController : BLL.BaseController
     {
