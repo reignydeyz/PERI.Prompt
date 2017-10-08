@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class Page : ISampleData<EF.Page>
     {
         EF.SampleDbContext context;

@@ -9,6 +9,7 @@ using System.Linq;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class User : ISampleData<EF.User>
     {
         EF.SampleDbContext context;

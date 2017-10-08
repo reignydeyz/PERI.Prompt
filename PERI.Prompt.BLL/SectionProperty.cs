@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class SectionProperty : ISampleData<EF.SectionProperty>
     {
         EF.SampleDbContext context;

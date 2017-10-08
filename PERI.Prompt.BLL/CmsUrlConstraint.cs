@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class CmsUrlConstraint : IRouteConstraint
     {
         public bool Match(HttpContext httpContext, IRouter route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)

@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class GalleryPhoto : ISampleData<EF.GalleryPhoto>
     {
         EF.SampleDbContext context;

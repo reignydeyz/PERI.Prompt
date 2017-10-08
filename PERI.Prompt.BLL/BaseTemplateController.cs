@@ -7,6 +7,7 @@ using System.Text;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class BaseTemplateController : BaseController
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)

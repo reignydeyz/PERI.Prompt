@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class ValidateReCaptchaAttribute : ActionFilterAttribute
     {
         public const string ReCaptchaModelErrorKey = "ReCaptcha";

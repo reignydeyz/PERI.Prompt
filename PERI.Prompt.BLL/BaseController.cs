@@ -12,6 +12,7 @@ namespace PERI.Prompt.BLL
     /// <see cref="https://coderwall.com/p/cibprg/basecontroller-in-asp-net-mvc"/>
     /// <seealso cref="https://stackoverflow.com/questions/27308524/access-viewbag-property-on-all-views"/>
     /// </summary>
+    [HandleException]
     public class BaseController : Controller
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)

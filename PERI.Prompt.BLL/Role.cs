@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class Role
     {
         EF.SampleDbContext context;

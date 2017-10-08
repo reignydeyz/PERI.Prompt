@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class Tag : ISampleData<EF.Tag>
     {
         EF.SampleDbContext context;

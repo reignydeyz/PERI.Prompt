@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class Template : ISampleData<EF.Template>
     {
         EF.SampleDbContext context;

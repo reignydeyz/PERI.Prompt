@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.BLL
 {
+    [HandleException]
     public class Photo : ISampleData<EF.Photo>
     {
         EF.SampleDbContext context;
