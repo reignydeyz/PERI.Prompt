@@ -19,7 +19,7 @@ namespace PERI.Prompt.BLL
         {
             using (var context = new EF.SampleDbContext())
             {
-                ViewBag.Settings = context.Setting.ToList();
+                ViewBag.Settings = new Setting(context).Find(new EF.Setting()).Result;
                 base.OnActionExecuting(filterContext);
             }                
         }

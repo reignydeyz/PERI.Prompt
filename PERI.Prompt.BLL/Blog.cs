@@ -84,18 +84,46 @@ namespace PERI.Prompt.BLL
             return res;
         }
 
+        /// <summary>
+        /// Gets the Blogs within the Category
+        /// </summary>
+        /// <param name="id">Category Id</param>
+        /// <param name="blogSortOrderId">Blog Sort Order Id</param>
+        /// <returns>List of Blogs</returns>
         public async Task<IEnumerable<EF.Blog>> FindByCategoryId(int id)
         {
+            var blogSortOrderId = (await context.Category.FirstAsync(x => x.CategoryId == id)).CategoryId;
+
             var res = await (from b in context.Blog
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
                     join bc in context.BlogCategory on b.BlogId equals bc.BlogId
                     join c in context.Category on bc.CategoryId equals c.CategoryId
-                    where c.CategoryId == id
-                             select b).OrderByDescending(x => x.DatePublished).ToListAsync();
+                    where c.CategoryId == id select b).ToListAsync();
 
-            return res;
+            switch (blogSortOrderId)
+            {
+                // Asynchronous by DateCreated
+                case 1:
+                    return res.OrderBy(x => x.DateCreated).ToList();
+                // Desynchronous by DateCreated
+                case 2:
+                    return res.OrderByDescending(x => x.DateCreated).ToList();
+                // Asynchronous by DatePublished
+                case 3:
+                    return res.OrderBy(x => x.DatePublished).ToList();
+                // Desynchronous by DatePublished
+                default:
+                case 4:
+                    return res.OrderByDescending(x => x.DatePublished).ToList();
+                // Asynchronous by Title
+                case 5:
+                    return res.OrderBy(x => x.Title).ToList();
+                // Desynchronous by Title
+                case 6:
+                    return res.OrderByDescending(x => x.Title).ToList();
+            }
         }
 
         public async Task<EF.Blog> Get(EF.Blog args)
