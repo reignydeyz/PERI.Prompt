@@ -20,7 +20,8 @@ namespace PERI.Prompt.BLL
 
                 ViewBag.LatestBlogs = context.Blog
                     .Where(x => x.DateInactive == null && x.DatePublished <= now)
-                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo).Take(5).ToList();
+                    .OrderByDescending(x => x.DatePublished).Take(5)
+                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo).ToList();
 
                 ViewBag.Categories = (from c in context.Category.Where(x => x.DateInactive == null)
                                      join bc in context.BlogCategory on c.CategoryId equals bc.CategoryId
