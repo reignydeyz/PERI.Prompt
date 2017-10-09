@@ -19,7 +19,7 @@ namespace PERI.Prompt.BLL
                 var now = DateTime.Now;
 
                 ViewBag.LatestBlogs = context.Blog
-                    .Include(x => x.BlogPhoto.DefaultIfEmpty()).ThenInclude(x => x.Photo)
+                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Where(x => x.DateInactive == null && x.DatePublished <= now).Take(5).ToList();
 
                 ViewBag.Categories = (from c in context.Category.Where(x => x.DateInactive == null)
