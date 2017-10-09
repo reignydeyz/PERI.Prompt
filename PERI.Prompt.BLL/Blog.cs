@@ -92,7 +92,7 @@ namespace PERI.Prompt.BLL
         /// <returns>List of Blogs</returns>
         public async Task<IEnumerable<EF.Blog>> FindByCategoryId(int id)
         {
-            var blogSortOrderId = (await context.Category.FirstAsync(x => x.CategoryId == id)).CategoryId;
+            var blogSortOrderId = (await context.Category.FirstAsync(x => x.CategoryId == id)).BlogSortOrderId;
 
             var res = await (from b in context.Blog
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
@@ -104,23 +104,23 @@ namespace PERI.Prompt.BLL
 
             switch (blogSortOrderId)
             {
-                // Asynchronous by DateCreated
+                // Ascending by DateCreated
                 case 1:
                     return res.OrderBy(x => x.DateCreated).ToList();
-                // Desynchronous by DateCreated
+                // Descending by DateCreated
                 case 2:
                     return res.OrderByDescending(x => x.DateCreated).ToList();
-                // Asynchronous by DatePublished
+                // Ascending by DatePublished
                 case 3:
                     return res.OrderBy(x => x.DatePublished).ToList();
-                // Desynchronous by DatePublished
+                // Descending by DatePublished
                 default:
                 case 4:
                     return res.OrderByDescending(x => x.DatePublished).ToList();
-                // Asynchronous by Title
+                // Ascending by Title
                 case 5:
                     return res.OrderBy(x => x.Title).ToList();
-                // Desynchronous by Title
+                // Descending by Title
                 case 6:
                     return res.OrderByDescending(x => x.Title).ToList();
             }
