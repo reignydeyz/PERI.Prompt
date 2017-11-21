@@ -1,7 +1,0 @@
-create table Tag
-(
-	TagId  integer primary key autoincrement,
-	Name  varchar(30) not null,
-
-	constraint UQ_Tag_Name unique (Name)
-)
