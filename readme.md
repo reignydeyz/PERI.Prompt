@@ -38,6 +38,8 @@ Solution structure:
 	- The Business Layer of the system
 - PERI.Prompt.Core
 	- Common functions
+- PERI.Prompt.DB
+	- The Database project that contains the database scripts
 - PERI.Prompt.EF
 	- Contains the EntityFramework module
 	- All of the data-manipulations were done here
@@ -46,7 +48,8 @@ Solution structure:
 
 Database:
 
-1. From SSMS, create Db and run every script in ```scripts``` folder
+- ~~From SSMS, create Db and run every script in ```scripts``` folder~~
+- From Visual Studio, right-click ```PERI.Prompt.DB``` project then choose ```Publish```. A wizard will appear that will contain the option to generate the database. Enter the values accordingly.
 
 Additional:
 
