@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PERI.Prompt.Web", "PERI.Prompt.Web\PERI.Prompt.Web.csproj", "{F4032415-95B3-4664-80CC-8728CD454B63}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PERI.Prompt.EF", "PERI.Prompt.EF\PERI.Prompt.EF.csproj", "{8E93AE40-17E8-4148-BFF1-A568AC13FE1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PERI.Prompt.BLL", "PERI.Prompt.BLL\PERI.Prompt.BLL.csproj", "{D29D110A-EBE2-4495-8FAC-9410E5F10235}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PERI.Prompt.BLL", "PERI.Prompt.BLL\PERI.Prompt.BLL.csproj", "{D29D110A-EBE2-4495-8FAC-9410E5F10235}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PERI.Prompt.Core", "PERI.Prompt.Core\PERI.Prompt.Core.csproj", "{9FF213B1-61BD-45E6-A934-339F2EC7D7EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PERI.Prompt.Core", "PERI.Prompt.Core\PERI.Prompt.Core.csproj", "{9FF213B1-61BD-45E6-A934-339F2EC7D7EC}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PERI.Prompt.DB", "PERI.Prompt.DB\PERI.Prompt.DB.sqlproj", "{A1A20DEF-E890-4728-82B8-33272924C0E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,12 @@ Global
 		{9FF213B1-61BD-45E6-A934-339F2EC7D7EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FF213B1-61BD-45E6-A934-339F2EC7D7EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FF213B1-61BD-45E6-A934-339F2EC7D7EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
