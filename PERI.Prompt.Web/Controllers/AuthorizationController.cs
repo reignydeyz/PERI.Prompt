@@ -180,15 +180,15 @@ namespace PERI.Prompt.Web.Controllers
                 var role = (await new BLL.Role(context).GetById(roleId)).Name;
 
                 if (!ModelState.IsValid)
-                    return View("SignUp", args);
-
-                // Add user
-                args.DateCreated = DateTime.Now;
-                await new BLL.User(context).Add(args);
+                    return View("SignUp", args);                
 
                 // Asign role
                 args.RoleId = roleId;
                 args.Role = new EF.Role { RoleId = roleId, Name = role };
+
+                // Add user
+                args.DateCreated = DateTime.Now;
+                await new BLL.User(context).Add(args);
 
                 await AddClaimsAndSignIn(args);
 

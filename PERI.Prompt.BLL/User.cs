@@ -35,6 +35,9 @@ namespace PERI.Prompt.BLL
             var salt = Core.Crypto.GenerateSalt();
             var enc = Core.Crypto.Hash(args.PasswordHash ?? Guid.NewGuid().ToString(), salt);
 
+            // default RoleId
+            var roleId = Convert.ToInt16((await context.Setting.FirstAsync(x => x.Key == "Default RoleId")).Value);
+
             // Generate ConfirmationCode
             Guid g = Guid.NewGuid();
             string guidString = Convert.ToBase64String(g.ToByteArray());
@@ -43,7 +46,7 @@ namespace PERI.Prompt.BLL
 
             args.PasswordHash = enc;
             args.PasswordSalt = Convert.ToBase64String(salt);
-            args.RoleId = args.RoleId == 0 ? 2 : args.RoleId;
+            args.RoleId = args.RoleId == 0 ? roleId : args.RoleId;
             args.LastSessionId = Guid.NewGuid().ToString();
             args.LastLoginDate = DateTime.Now;
             args.DateCreated = args.LastLoginDate.Value;
