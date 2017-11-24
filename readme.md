@@ -43,6 +43,9 @@ Solution structure:
 - PERI.Prompt.EF
 	- Contains the EntityFramework module
 	- All of the data-manipulations were done here
+- PERI.Prompt.Ext.*
+	- External APIs
+	- Uses .NET Standard
 - PERI.Prompt.Web
 	- The main project
 

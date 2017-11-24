@@ -42,6 +42,9 @@ insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) value
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Recaptcha','Recaptcha public key', null,'text',  3, 'false');
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Recaptcha','Recaptcha private key', null,'text',  3, 'false');
 
+insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Google Search','ApiKey', null,'text',  4, 'true');
+insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Google Search','CseId', null,'text',  4, 'true');
+
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Site','Name', null,'text',  0, 'true');
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Site','Tagline', null,'text',  0, 'true');
 -------------------------------------------------------------------------------------
