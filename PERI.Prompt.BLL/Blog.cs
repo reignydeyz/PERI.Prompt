@@ -77,7 +77,7 @@ namespace PERI.Prompt.BLL
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
-                             where c.Title.Contains(args.Title ?? string.Empty)
+                             where (c.Title.Contains(args.Title ?? string.Empty) || c.Body.Contains(args.Body ?? string.Empty))
                              && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
                              select c).ToListAsync();
 
