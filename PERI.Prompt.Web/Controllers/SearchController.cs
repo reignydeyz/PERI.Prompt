@@ -20,6 +20,12 @@ namespace PERI.Prompt.Web.Controllers
 
             var res = await new BLL.Blog(context).Find(new EF.Blog { Title = qry, Body = qry });
             res = res.Where(x => x.DateInactive == null);
+
+            var page = Convert.ToInt16(Request.Query["page"]);
+            var pager = new Core.Pager(res.Count(), page == 0 ? 1 : page);
+
+            res = res.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize);
+
             ViewBag.SearchResult = res.ToList();
 
             return View("Index", qry ?? string.Empty);
