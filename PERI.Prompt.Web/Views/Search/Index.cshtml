@@ -1,5 +1,6 @@
-﻿@using EF = PERI.Prompt.EF
-@model string
+﻿@using Core = PERI.Prompt.Core
+@using EF = PERI.Prompt.EF
+@model Tuple<string, Core.Pager>
 @{
     ViewBag.Title = "Index";
     Layout = null;

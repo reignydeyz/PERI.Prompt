@@ -28,7 +28,7 @@ namespace PERI.Prompt.Web.Controllers
 
             ViewBag.SearchResult = res.ToList();
 
-            return View("Index", qry ?? string.Empty);
+            return View(new Tuple<string, Core.Pager>(qry ?? "", pager));
         }
     }
 }
