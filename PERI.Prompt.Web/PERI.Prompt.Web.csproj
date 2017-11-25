@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
     <PackageReference Include="MimeKit" Version="1.18.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.4.1" />
   </ItemGroup>
@@ -23,6 +24,7 @@
     <ProjectReference Include="..\PERI.Prompt.BLL\PERI.Prompt.BLL.csproj" />
     <ProjectReference Include="..\PERI.Prompt.Core\PERI.Prompt.Core.csproj" />
     <ProjectReference Include="..\PERI.Prompt.EF\PERI.Prompt.EF.csproj" />
+    <ProjectReference Include="..\PERI.Prompt.Ext.GoogleSearch\PERI.Prompt.Ext.GoogleSearch.csproj" />
   </ItemGroup>
 
   <ItemGroup>
