@@ -12,15 +12,17 @@ namespace PERI.Prompt.Web.Controllers
     public class SearchController : BLL.BaseTemplateController
     {
         // GET: /<controller>/
-        [Route("Search/{qry}")]
-        public async Task<IActionResult> Index(string qry)
+        public async Task<IActionResult> Index()
         {
+            var qry = Request.Query["qry"].ToString();
+
             var context = new EF.SampleDbContext();
 
             var res = await new BLL.Blog(context).Find(new EF.Blog { Title = qry, Body = qry });
-            ViewBag.SearchResult = res.Where(x => x.DateInactive == null);
+            res = res.Where(x => x.DateInactive == null);
+            ViewBag.SearchResult = res.ToList();
 
-            return View(qry);
+            return View("Index", qry ?? string.Empty);
         }
     }
 }
