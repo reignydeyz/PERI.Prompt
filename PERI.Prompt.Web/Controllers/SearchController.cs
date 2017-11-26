@@ -29,14 +29,21 @@ namespace PERI.Prompt.Web.Controllers
 
             ViewBag.SearchResult = res.ToList();
 
-            return View(new Tuple<string, Core.Pager, int>(qry ?? "", pager, cnt));
+            return View(new Tuple<Models.Search, Core.Pager, int>(new Models.Search { Query = qry ?? "" }, pager, cnt));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Index([Bind(Prefix = "Item1")] string model)
+        public IActionResult Index(Models.Search model)
         {
-            return Redirect("~/Search/?qry=" + model);
+            return Redirect("~/Search/?qry=" + model.Query);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult IndexPage([Bind(Prefix = "Item1")] Models.Search model)
+        {
+            return Redirect("~/Search/?qry=" + model.Query);
         }
     }
 }
