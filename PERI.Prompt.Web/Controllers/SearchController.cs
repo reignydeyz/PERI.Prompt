@@ -20,6 +20,7 @@ namespace PERI.Prompt.Web.Controllers
 
             var res = await new BLL.Blog(context).Find(new EF.Blog { Title = qry, Body = qry });
             res = res.Where(x => x.DateInactive == null);
+            int cnt = res.Count();
 
             var page = Convert.ToInt16(Request.Query["page"]);
             var pager = new Core.Pager(res.Count(), page == 0 ? 1 : page);
@@ -28,7 +29,14 @@ namespace PERI.Prompt.Web.Controllers
 
             ViewBag.SearchResult = res.ToList();
 
-            return View(new Tuple<string, Core.Pager>(qry ?? "", pager));
+            return View(new Tuple<string, Core.Pager, int>(qry ?? "", pager, cnt));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Index([Bind(Prefix = "Item1")] string model)
+        {
+            return Redirect("~/Search/?qry=" + model);
         }
     }
 }
