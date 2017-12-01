@@ -34,6 +34,9 @@ namespace PERI.Prompt.BLL
                                          BlogCount = g.Count()
                                      }).ToList();
 
+                ViewBag.Events = context.Event.Where(x => x.DateInactive == null && x.Time > DateTime.Now)
+                                 .Include(x => x.EventPhoto).ThenInclude(x => x.Photo).OrderBy(x => x.Time).ToList();
+
                 ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
 
                 ViewBag.Tags = context.Tag.Include(x => x.BlogTag)
