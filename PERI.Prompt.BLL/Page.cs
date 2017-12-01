@@ -84,7 +84,9 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Page> Get(EF.Page args)
         {
-            return await context.Page.FirstOrDefaultAsync(x => x.Permalink == args.Permalink);
+            return await context.Page
+                .Include(x => x.PagePhoto).ThenInclude(x => x.Photo)
+                .FirstOrDefaultAsync(x => x.Permalink == args.Permalink);
         }
 
         public async Task<Tuple<EF.Page, bool>> GetModel(int id)
