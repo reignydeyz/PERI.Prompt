@@ -14,6 +14,8 @@ namespace PERI.Prompt.EF
         public virtual DbSet<BlogTag> BlogTag { get; set; }
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<ChildMenuItem> ChildMenuItem { get; set; }
+        public virtual DbSet<Event> Event { get; set; }
+        public virtual DbSet<EventPhoto> EventPhoto { get; set; }
         public virtual DbSet<Gallery> Gallery { get; set; }
         public virtual DbSet<GalleryPhoto> GalleryPhoto { get; set; }
         public virtual DbSet<Menu> Menu { get; set; }
@@ -193,6 +195,60 @@ namespace PERI.Prompt.EF
                     .HasConstraintName("FK_ChildMenuItem_MenuItem");
             });
 
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DateCreated).HasColumnType("datetime");
+
+                entity.Property(e => e.DateInactive).HasColumnType("datetime");
+
+                entity.Property(e => e.DateModified).HasColumnType("datetime");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Location)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ModifiedBy)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Time).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<EventPhoto>(entity =>
+            {
+                entity.HasKey(e => new { e.EventId, e.PhotoId });
+
+                entity.HasIndex(e => new { e.EventId, e.PhotoId })
+                    .HasName("UQ_EventPhoto_EventId_PhotoId")
+                    .IsUnique();
+
+                entity.HasOne(d => d.Event)
+                    .WithMany(p => p.EventPhoto)
+                    .HasForeignKey(d => d.EventId)
+                    .HasConstraintName("FK_EventPhoto_Event");
+
+                entity.HasOne(d => d.Photo)
+                    .WithMany(p => p.EventPhoto)
+                    .HasForeignKey(d => d.PhotoId)
+                    .HasConstraintName("FK_EventPhoto_Photo");
+            });
+
             modelBuilder.Entity<Gallery>(entity =>
             {
                 entity.Property(e => e.CreatedBy)
@@ -299,11 +355,11 @@ namespace PERI.Prompt.EF
             modelBuilder.Entity<Page>(entity =>
             {
                 entity.HasIndex(e => e.Permalink)
-                    .HasName("UQ__Page__58FFE9648D1D49D0")
+                    .HasName("UQ__Page__58FFE96490270724")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Title)
-                    .HasName("UQ__Page__2CB664DC28EEFF64")
+                    .HasName("UQ__Page__2CB664DC087B0D73")
                     .IsUnique();
 
                 entity.Property(e => e.Content)

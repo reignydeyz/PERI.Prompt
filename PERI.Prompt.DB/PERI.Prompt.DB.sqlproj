@@ -84,6 +84,7 @@
     <Build Include="Menu.sql" />
     <Build Include="MenuItem.sql" />
     <Build Include="ChildMenuItem.sql" />
+    <Build Include="Event.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />

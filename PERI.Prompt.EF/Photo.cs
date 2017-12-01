@@ -8,6 +8,7 @@ namespace PERI.Prompt.EF
         public Photo()
         {
             BlogPhoto = new HashSet<BlogPhoto>();
+            EventPhoto = new HashSet<EventPhoto>();
             GalleryPhoto = new HashSet<GalleryPhoto>();
             PagePhoto = new HashSet<PagePhoto>();
             SectionItemPhoto = new HashSet<SectionItemPhoto>();
@@ -17,6 +18,7 @@ namespace PERI.Prompt.EF
         public string Url { get; set; }
 
         public ICollection<BlogPhoto> BlogPhoto { get; set; }
+        public ICollection<EventPhoto> EventPhoto { get; set; }
         public ICollection<GalleryPhoto> GalleryPhoto { get; set; }
         public ICollection<PagePhoto> PagePhoto { get; set; }
         public ICollection<SectionItemPhoto> SectionItemPhoto { get; set; }

@@ -109,13 +109,13 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             return Redirect("~/Main/Blog");
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             ViewData["Title"] = "Blog/Edit";
 
             var context = new EF.SampleDbContext();
 
-            var obj = new BLL.Blog(context).GetModel(id);
+            var obj = await (new BLL.Blog(context).GetModel(id));
             return View(obj);
         }
 
