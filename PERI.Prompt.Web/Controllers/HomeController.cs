@@ -10,7 +10,7 @@ using MailKit.Net.Smtp;
 
 namespace PERI.Prompt.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BLL.BaseTemplateController
     {
         // GET: /<controller>/
         public IActionResult Index()
