@@ -23,7 +23,7 @@ namespace PERI.Prompt.Web.Controllers
         public async Task<IActionResult> Contact(Models.Contact args)
         {
             if (!ModelState.IsValid)
-                return View("Index", args);
+                return View("Index");
 
             var smtpSettings = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Smtp");
             var smtpDisplayName = smtpSettings.First(x => x.Key == "Smtp display name").Value;
