@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PERI.Prompt.Web.Controllers
 {
-    public class EventController : Controller
+    public class EventController : BLL.BaseTemplateController
     {
         public IActionResult Index()
         {
