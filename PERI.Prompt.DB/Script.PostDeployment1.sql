@@ -44,6 +44,8 @@ insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) value
 
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Site','Name', null,'text',  0, 'true');
 insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Site','Tagline', null,'text',  0, 'true');
+
+insert into [Setting]([Group], [Key], [Value], [Type], Priority, Required) values('Disqus','Full javascript path', null,'text',  4, 'true');
 -------------------------------------------------------------------------------------
 insert into [Menu](Name) values('Homepage');
 insert into [Menu](Name) values('Header');
