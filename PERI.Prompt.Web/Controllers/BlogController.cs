@@ -56,5 +56,13 @@ namespace PERI.Prompt.Web.Controllers
 
             return View(new Tuple<EF.Category, Core.Pager, List<EF.Blog>>(category, pager, blogs.ToList()));
         }
+                
+        public IActionResult Preview()
+        {
+            var title = Request.Cookies["preview_blog_title"];
+            var body = Request.Cookies["preview_blog_body"];
+
+            return View(new EF.Blog { Title = title, Body = body });
+        }
     }
 }

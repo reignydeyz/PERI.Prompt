@@ -228,5 +228,15 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
             return Json("Success!");
         }
+        
+        [HttpPost]
+        public IActionResult Preview([FromBody] EF.Blog blog)
+        {
+            CookieOptions option = new CookieOptions();
+            Response.Cookies.Append("preview_blog_title", blog.Title, option);
+            Response.Cookies.Append("preview_blog_body", blog.Body, option);
+
+            return Json("Success!");
+        }
     }
 }

@@ -106,6 +106,7 @@
                             <span style="color:red">@Html.ValidationSummary()</span>
                             <button type="submit" class="btn btn-primary">Submit</button>
                             <a href="#" class="btn btn-default" onclick="window.history.back();">Cancel</a>
+                            <a href="#" class="btn btn-default pull-right" id="btnPreview">Preview</a>
                         </div>
                     }
                 </div>
@@ -122,6 +123,23 @@
     $(document).ready(function () {
         $(function () {
             $('#Item1_DatePublished').datetimepicker();
+        });
+
+        $("#btnPreview").click(function () {
+            var obj = { "Title": $("#Item1_Title").val(), "Body": $("#Item1_Body").val() };
+            var options = {};
+            options.url = "/main/blog/preview";
+            options.type = "POST";
+            options.data = JSON.stringify(obj);
+            options.contentType = "application/json";
+            options.dataType = "json";
+            options.success = function () {
+                window.open("/Blog/Preview", "_blank");
+            };
+            options.error = function (msg) {
+                alert(msg);
+            };
+            $.ajax(options);
         });
     });
 </script>
