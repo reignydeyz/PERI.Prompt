@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -230,11 +231,32 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         }
         
         [HttpPost]
-        public IActionResult Preview([FromBody] EF.Blog blog)
+        public async Task<IActionResult> Preview(EF.Blog blog, IFormFile file)
         {
-            CookieOptions option = new CookieOptions();
-            Response.Cookies.Append("preview_blog_title", blog.Title, option);
-            Response.Cookies.Append("preview_blog_body", blog.Body, option);
+            var context = new EF.SampleDbContext();
+            var bllPhoto = new BLL.Photo(context);
+
+            if (!String.IsNullOrEmpty(Request.Cookies["preview_blog_photoId"]))
+            {
+                // Delete photo
+                var id = Convert.ToInt32(Request.Cookies["preview_blog_photoId"]);
+                await bllPhoto.Delete(id, _environment);
+            }
+
+            // Clear cookies
+            Response.Cookies.Delete("preview_blog_title");
+            Response.Cookies.Delete("preview_blog_body");
+            Response.Cookies.Delete("preview_blog_photoId");
+
+            // Add cookies
+            Response.Cookies.Append("preview_blog_title", blog.Title);
+            Response.Cookies.Append("preview_blog_body", blog.Body);
+
+            int? photoId = null;
+            if (file.Length > 0)
+                photoId = await bllPhoto.Add(_environment, file);
+
+            Response.Cookies.Append("preview_blog_photoId", photoId.ToString());
 
             return Json("Success!");
         }

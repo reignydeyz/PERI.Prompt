@@ -57,12 +57,29 @@ namespace PERI.Prompt.Web.Controllers
             return View(new Tuple<EF.Category, Core.Pager, List<EF.Blog>>(category, pager, blogs.ToList()));
         }
                 
-        public IActionResult Preview()
+        public async Task<IActionResult> Preview()
         {
             var title = Request.Cookies["preview_blog_title"];
             var body = Request.Cookies["preview_blog_body"];
 
-            return View(new EF.Blog { Title = title, Body = body });
+            var obj = new EF.Blog
+            {
+                Title = title,
+                Body = body
+            };
+
+            if (Request.Cookies["preview_blog_photoId"] != "")
+            {
+                var context = new EF.SampleDbContext();
+                var id = Convert.ToInt32(Request.Cookies["preview_blog_photoId"]);
+                var photo = await new BLL.Photo(context).Get(new EF.Photo { PhotoId = id });
+
+                obj.BlogPhoto.Add(new EF.BlogPhoto {
+                    Photo = photo
+                });
+            }
+
+            return View(obj);
         }
     }
 }

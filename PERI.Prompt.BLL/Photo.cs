@@ -107,9 +107,9 @@ namespace PERI.Prompt.BLL
             return await context.Photo.ToListAsync();
         }
 
-        public Task<EF.Photo> Get(EF.Photo args)
+        public async Task<EF.Photo> Get(EF.Photo args)
         {
-            throw new NotImplementedException();
+            return await context.Photo.FirstAsync(x => x.PhotoId == args.PhotoId);
         }
 
         public async Task Delete(int id, IHostingEnvironment environment)
