@@ -31,7 +31,7 @@
             </div>
             <div class="panel-body">
                 <div class="row">                    
-                    @using (Html.BeginForm("Edit", "Blog", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    @using (Html.BeginForm("Edit", "Blog", FormMethod.Post, new { enctype = "multipart/form-data", id="frm" }))
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(x => x.Item1.BlogId)
@@ -83,7 +83,7 @@
                                     </div>
                                 }
 
-                                <input type="file" name="file" accept="image/*" />
+                                <input type="file" name="file" accept="image/*" id="fuPhoto"/>
                                 <p class="help-block">Leave file-upload blanked if you don't need to update the photo.</p>
                             </div>
 
@@ -120,26 +120,45 @@
 </div>
 
 <script>
+    function processPreview(obj) {
+        var options = {};
+        options.url = "/main/blog/preview";
+        options.type = "POST";
+        options.enctype = "multipart/form-data";
+        options.data = obj;
+        options.processData = false;
+        options.contentType = false;
+        options.success = function () {
+            window.open("/Blog/Preview", "_blank");
+        };
+        options.error = function (msg) {
+            alert("Cannot process preview");
+        };
+        $.ajax(options);
+    }
+
     $(document).ready(function () {
         $(function () {
             $('#Item1_DatePublished').datetimepicker();
         });
 
         $("#btnPreview").click(function () {
-            var obj = { "Title": $("#Item1_Title").val(), "Body": $("#Item1_Body").val() };
-            var options = {};
-            options.url = "/main/blog/preview";
-            options.type = "POST";
-            options.data = JSON.stringify(obj);
-            options.contentType = "application/json";
-            options.dataType = "json";
-            options.success = function () {
-                window.open("/Blog/Preview", "_blank");
-            };
-            options.error = function (msg) {
-                alert("Cannot process preview");
-            };
-            $.ajax(options);
+            var files = document.getElementById('fuPhoto').files;
+            var obj = {};
+
+            // https://www.mkyong.com/jquery/jquery-ajax-submit-a-multipart-form/
+            // Get form
+            var form = $('#frm')[0];
+
+            // Create an FormData object
+            var data = new FormData(form);
+
+            // If you want to add an extra field for the FormData
+            data.append("BlogId", $("#Item1_BlogId").val());
+            data.append("Title", $("#Item1_Title").val());
+            data.append("Body", $("#Item1_Body").val());
+
+            processPreview(data);
         });
     });
 </script>

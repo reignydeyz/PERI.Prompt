@@ -235,12 +235,15 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             var context = new EF.SampleDbContext();
             var bllPhoto = new BLL.Photo(context);
+            var bllBlogPhoto = new BLL.BlogPhoto(context);
 
             if (!String.IsNullOrEmpty(Request.Cookies["preview_blog_photoId"]))
             {
-                // Delete photo
                 var id = Convert.ToInt32(Request.Cookies["preview_blog_photoId"]);
-                await bllPhoto.Delete(id, _environment);
+
+                // Delete photo if not in BlogPhotos
+                if ((await bllBlogPhoto.Find(new EF.BlogPhoto { PhotoId = id })).Count() <= 0)
+                    await bllPhoto.Delete(id, _environment);
             }
 
             // Clear cookies
@@ -253,8 +256,19 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             Response.Cookies.Append("preview_blog_body", blog.Body);
 
             int? photoId = null;
-            if (file.Length > 0)
+            if (file != null && file.Length > 0)
                 photoId = await bllPhoto.Add(_environment, file);
+            else
+            {
+                if (blog.BlogId != 0)
+                {
+                    var bllBlog = new BLL.Blog(context);
+                    var blo = await bllBlog.Get(new EF.Blog { BlogId = blog.BlogId });
+
+                    if (blo.BlogPhoto.Count() > 0)
+                        photoId = blo.BlogPhoto.First().PhotoId;
+                }
+            }
 
             Response.Cookies.Append("preview_blog_photoId", photoId.ToString());
 

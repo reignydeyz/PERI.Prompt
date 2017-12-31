@@ -60,7 +60,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogPhoto>> Find(EF.BlogPhoto args)
         {
-            var res = await context.BlogPhoto.Where(x => x.BlogId == args.BlogId).ToListAsync();
+            var res = await context.BlogPhoto.Where(x => x.BlogId == args.BlogId || args.PhotoId == args.PhotoId).ToListAsync();
 
             return res;
         }
