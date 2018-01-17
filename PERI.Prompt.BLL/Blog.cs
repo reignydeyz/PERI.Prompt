@@ -100,7 +100,9 @@ namespace PERI.Prompt.BLL
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
                     join bc in context.BlogCategory on b.BlogId equals bc.BlogId
                     join c in context.Category on bc.CategoryId equals c.CategoryId
-                    where c.CategoryId == id select b).ToListAsync();
+                    where c.CategoryId == id
+                    && b.VisibilityId == 1
+                             select b).ToListAsync();
 
             switch (blogSortOrderId)
             {

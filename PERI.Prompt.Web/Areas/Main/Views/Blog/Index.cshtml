@@ -64,6 +64,7 @@
                             <th>Title</th>
                             <th>Categories</th>
                             <th>Author</th>
+                            <th>Date Published</th>
                             <th>Tags</th>
                             <th>Active</th>
                         </tr>
@@ -71,27 +72,28 @@
                     <tbody>
                         @foreach (var rec in (ViewBag.Data as IEnumerable<EF.Blog>))
                         {
-                            <tr class="odd gradeX">
-                                <td><input type="checkbox" class="checkBox" value="@rec.BlogId" /></td>
-                                <td>
+                        <tr class="odd gradeX">
+                            <td><input type="checkbox" class="checkBox" value="@rec.BlogId" /></td>
+                            <td>
 
-                                    <div class="input-group-btn">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                            Action
-                                            <span class="fa fa-caret-down"></span>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="~/Main/Blog/Edit/@rec.BlogId">Edit</a></li>
-                                        </ul>
-                                    </div>
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        Action
+                                        <span class="fa fa-caret-down"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="~/Main/Blog/Edit/@rec.BlogId">Edit</a></li>
+                                    </ul>
+                                </div>
 
-                                </td>
-                                <td>@rec.Title</td>
-                                <td>@String.Join(",", rec.BlogCategory.Select(x => x.Category.Name))</td>
-                                <td>@rec.CreatedBy</td>
-                                <td>@String.Join(",", rec.BlogTag.Select(x => x.Tag.Name))</td>
-                                <td>@(rec.DateInactive == null)</td>
-                            </tr>
+                            </td>
+                            <td>@rec.Title</td>
+                            <td>@String.Join(",", rec.BlogCategory.Select(x => x.Category.Name))</td>
+                            <td>@rec.CreatedBy</td>
+                            <td>@rec.DatePublished</td>
+                            <td>@String.Join(",", rec.BlogTag.Select(x => x.Tag.Name))</td>
+                            <td>@(rec.DateInactive == null)</td>
+                        </tr>
                         }
 
                     </tbody>

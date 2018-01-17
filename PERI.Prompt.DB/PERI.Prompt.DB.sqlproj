@@ -86,6 +86,9 @@
     <Build Include="ChildMenuItem.sql" />
     <Build Include="Event.sql" />
     <Build Include="EventPhoto.sql" />
+    <Build Include="Visibility.sql" />
+    <Build Include="Attachment.sql" />
+    <Build Include="BlogAttachment.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Script.PostDeployment1.sql" />

@@ -66,6 +66,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
             var context = new EF.SampleDbContext();
 
+            model.VisibilityId = 1;
             model.CreatedBy = User.Identity.Name;
 
             var bblog = new BLL.Blog(context);

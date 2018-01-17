@@ -52,3 +52,6 @@ insert into [Menu](Name) values('Header');
 insert into [Menu](Name) values('Footer');
 -------------------------------------------------------------------------------------
 insert into [MenuItem](MenuId, Label, Url, [Order]) values(1, 'Home', '/', 0);
+-------------------------------------------------------------------------------------
+insert into [Visibility](Name) values('Public');
+insert into [Visibility](Name) values('Private');

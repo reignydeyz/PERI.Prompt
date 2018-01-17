@@ -7,7 +7,9 @@ namespace PERI.Prompt.EF
 {
     public partial class SampleDbContext : DbContext
     {
+        public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<Blog> Blog { get; set; }
+        public virtual DbSet<BlogAttachment> BlogAttachment { get; set; }
         public virtual DbSet<BlogCategory> BlogCategory { get; set; }
         public virtual DbSet<BlogPhoto> BlogPhoto { get; set; }
         public virtual DbSet<BlogSortOrder> BlogSortOrder { get; set; }
@@ -34,6 +36,7 @@ namespace PERI.Prompt.EF
         public virtual DbSet<Template> Template { get; set; }
         public virtual DbSet<TemplateSetting> TemplateSetting { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<Visibility> Visibility { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -45,6 +48,14 @@ namespace PERI.Prompt.EF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Attachment>(entity =>
+            {
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<Blog>(entity =>
             {
                 entity.Property(e => e.Body)
@@ -73,6 +84,30 @@ namespace PERI.Prompt.EF
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.HasOne(d => d.Visibility)
+                    .WithMany(p => p.Blog)
+                    .HasForeignKey(d => d.VisibilityId)
+                    .HasConstraintName("FK_Blog_Visibility");
+            });
+
+            modelBuilder.Entity<BlogAttachment>(entity =>
+            {
+                entity.HasKey(e => new { e.BlogId, e.AttachmentId });
+
+                entity.HasIndex(e => new { e.BlogId, e.AttachmentId })
+                    .HasName("UQ_BlogAttachment_BlogId_AttachmentId")
+                    .IsUnique();
+
+                entity.HasOne(d => d.Attachment)
+                    .WithMany(p => p.BlogAttachment)
+                    .HasForeignKey(d => d.AttachmentId)
+                    .HasConstraintName("FK_BlogAttachment_Attachment");
+
+                entity.HasOne(d => d.Blog)
+                    .WithMany(p => p.BlogAttachment)
+                    .HasForeignKey(d => d.BlogId)
+                    .HasConstraintName("FK_BlogAttachment_Blog");
             });
 
             modelBuilder.Entity<BlogCategory>(entity =>
@@ -355,11 +390,11 @@ namespace PERI.Prompt.EF
             modelBuilder.Entity<Page>(entity =>
             {
                 entity.HasIndex(e => e.Permalink)
-                    .HasName("UQ__Page__58FFE96490270724")
+                    .HasName("UQ__Page__58FFE96489A3747C")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Title)
-                    .HasName("UQ__Page__2CB664DC087B0D73")
+                    .HasName("UQ__Page__2CB664DC4B5B1455")
                     .IsUnique();
 
                 entity.Property(e => e.Content)
@@ -670,6 +705,14 @@ namespace PERI.Prompt.EF
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.RoleId)
                     .HasConstraintName("FK_User_Role");
+            });
+
+            modelBuilder.Entity<Visibility>(entity =>
+            {
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
         }
     }
