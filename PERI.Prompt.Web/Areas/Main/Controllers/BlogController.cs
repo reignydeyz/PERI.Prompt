@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class BlogController : BLL.BaseController
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private readonly IHostingEnvironment _environment;
         public BlogController(IHostingEnvironment environment)
         {
@@ -60,51 +63,85 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, [Bind(Prefix = "Item4")] Dictionary<string, bool> categories, IFormFile file)
+        public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.Blog model, [Bind(Prefix = "Item2")] string tags, [Bind(Prefix = "Item3")] bool isactive, [Bind(Prefix = "Item4")] Dictionary<string, bool> categories, IFormCollection files)
         {
             ViewData["Title"] = "Blog/New";
 
             var context = new EF.SampleDbContext();
 
-            model.VisibilityId = 1;
-            model.CreatedBy = User.Identity.Name;
-
-            var bblog = new BLL.Blog(context);
-
-            // Add Blog
-            if (!isactive)
-                model.DateInactive = DateTime.Now;
-            else
-                model.DateInactive = null;
-
-            var id = await bblog.Add(model);
-
-            // Add BlogCategory
-            foreach (var category in categories.Where(x => x.Value == true))
+            using (var txn = context.Database.BeginTransaction())
             {
-                var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
-                await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
-            }
-
-            // Add Photo
-            IFormFile uploadedImage = file;
-            if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
-            {
-                var pid = await new BLL.Photo(context).Add(_environment, file);
-
-                var bp = new EF.BlogPhoto();
-                bp.BlogId = id;
-                bp.PhotoId = pid;
-                await new BLL.BlogPhoto(context).Add(bp);
-            }
-
-            // Add Tag
-            if (tags != null)
-            {
-                foreach (var tag in tags.Split(','))
+                try
                 {
-                    var tid = await new BLL.Tag(context).Add(new EF.Tag { Name = tag });
-                    await new BLL.BlogTag(context).Add(new EF.BlogTag { BlogId = id, TagId = tid });
+                    model.VisibilityId = 1;
+                    model.CreatedBy = User.Identity.Name;
+
+                    var bblog = new BLL.Blog(context);
+
+                    // Add Blog
+                    if (!isactive)
+                        model.DateInactive = DateTime.Now;
+                    else
+                        model.DateInactive = null;
+
+                    var id = await bblog.Add(model);
+
+                    // Add BlogCategory
+                    foreach (var category in categories.Where(x => x.Value == true))
+                    {
+                        var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
+                        await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
+                    }
+
+                    foreach (var file in files.Files)
+                    {
+                        if (file.Name == "photo")
+                        {
+                            // Add Photo
+                            IFormFile uploadedImage = file;
+                            if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
+                            {
+                                var pid = await new BLL.Photo(context).Add(_environment, file);
+
+                                var bp = new EF.BlogPhoto();
+                                bp.BlogId = id;
+                                bp.PhotoId = pid;
+                                await new BLL.BlogPhoto(context).Add(bp);
+                            }
+                        }
+                        else
+                        {
+                            // Add Attachment
+                            var aid = await new BLL.Attachment(context).Add(_environment, file);
+
+                            var ba = new EF.BlogAttachment();
+                            ba.BlogId = id;
+                            ba.AttachmentId = aid;
+                            await new BLL.BlogAttachment(context).Add(ba);
+                        }
+                    }
+
+                    // Add Tag
+                    if (tags != null)
+                    {
+                        foreach (var tag in tags.Split(','))
+                        {
+                            var tid = await new BLL.Tag(context).Add(new EF.Tag { Name = tag });
+                            await new BLL.BlogTag(context).Add(new EF.BlogTag { BlogId = id, TagId = tid });
+                        }
+                    }
+
+                    txn.Commit();
+                }
+                catch (Exception ex)
+                {
+                    txn.Rollback();
+
+                    logger.Error(ex);
+
+                    TempData["notice"] = "Oops! Something went wrong.";
+
+                    return View(new Tuple<EF.Blog, string, bool, Dictionary<string, bool>>(model, tags, isactive, categories));
                 }
             }
 
