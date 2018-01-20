@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using PERI.Prompt.EF;
 
 namespace PERI.Prompt.BLL
@@ -61,6 +63,13 @@ namespace PERI.Prompt.BLL
         public Task<EF.BlogAttachment> Get(EF.BlogAttachment args)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<EF.BlogAttachment>> Get(int[] ids)
+        {
+            var res = await context.BlogAttachment.Where(x => ids.Contains(x.BlogId)).ToListAsync();
+
+            return res;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -44,6 +45,22 @@ namespace PERI.Prompt.BLL
             }
 
             return attachment.AttachmentId;
+        }
+
+        public async Task Delete(int id, IHostingEnvironment environment)
+        {
+            var attachment = context.Attachment.First(x => x.AttachmentId == id);
+
+            // https://stackoverflow.com/questions/1616353/how-can-i-get-a-directory-from-a-uri
+            Uri baseAddress = new Uri(Path.Combine(environment.WebRootPath, attachment.Url));
+            Uri directory = new Uri(baseAddress, "."); // "." == current dir, like MS-DOS
+            Console.WriteLine(directory.OriginalString);
+
+            // Remove the attachment physical file
+            await Task.Run(() => Directory.Delete(directory.OriginalString, true));
+
+            context.Attachment.Remove(attachment);
+            await context.SaveChangesAsync();
         }
 
         public Attachment(EF.SampleDbContext dbcontext)
@@ -94,6 +111,26 @@ namespace PERI.Prompt.BLL
         public Task<EF.Attachment> Get(EF.Attachment args)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task Delete(int[] ids, IHostingEnvironment environment)
+        {
+            var res = context.Attachment.Where(x => ids.Contains(x.AttachmentId));
+
+            // Remove the attachments
+            foreach (var p in res)
+            {
+                // https://stackoverflow.com/questions/1616353/how-can-i-get-a-directory-from-a-uri
+                Uri baseAddress = new Uri(Path.Combine(environment.WebRootPath, p.Url));
+                Uri directory = new Uri(baseAddress, "."); // "." == current dir, like MS-DOS
+                Console.WriteLine(directory.OriginalString);
+
+                // Remove the attachment physical file
+                await Task.Run(() => Directory.Delete(directory.OriginalString, true));
+            }
+
+            context.Attachment.RemoveRange(res);
+            await context.SaveChangesAsync();
         }
     }
 }

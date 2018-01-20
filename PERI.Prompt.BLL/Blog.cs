@@ -133,6 +133,7 @@ namespace PERI.Prompt.BLL
             var rec = await context.Blog
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
+                    .Include(x => x.BlogAttachment).ThenInclude(x => x.Attachment)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
                     .FirstOrDefaultAsync(x => x.BlogId == args.BlogId);
 
@@ -142,6 +143,7 @@ namespace PERI.Prompt.BLL
         public async Task<Tuple<EF.Blog, string, bool, Dictionary<string, bool>>> GetModel(int id)
         {
             var rec = await context.Blog
+            .Include(x => x.BlogAttachment).ThenInclude(x => x.Attachment)
             .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
             .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
             .Include(x => x.BlogCategory).ThenInclude(x => x.Category)

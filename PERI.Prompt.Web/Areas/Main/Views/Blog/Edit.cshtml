@@ -88,6 +88,18 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Attachments</label>
+                                <input type="file" name="attachments" accept=".7z, .bzip2, .gzip, .tar, .rar, .wim, .xz, .zip" id="fuAttachments" multiple/>
+                                @if (Model.Item1.BlogAttachment.Count() > 0)
+                                {
+                                    foreach (var attachment in Model.Item1.BlogAttachment)
+                                    {
+                                        <a href="#" onclick="deleteAttachment(@Model.Item1.BlogId, @attachment.AttachmentId)"><i class="fa fa-times" aria-hidden="true"></i> @System.IO.Path.GetFileName(attachment.Attachment.Url)</a><br/>
+                                    }
+                                }
+                            </div>
+
+                            <div class="form-group">
                                 <label>Tags</label>
                                 <div>
                                     @Html.TextBoxFor(x => x.Item2, new { placeholder = "Tags", type = "tags" })
@@ -135,6 +147,26 @@
             alert("Cannot process preview");
         };
         $.ajax(options);
+    }
+
+    function deleteAttachment(blogId, attachmentId) {
+
+        var q = confirm("Are you sure you want to delete this attachment?");
+
+        if (q) {
+            var options = {};
+            options.url = "/main/blog/deleteblogattachment/" + blogId + "/" + attachmentId;
+            options.type = "GET";
+            options.processData = false;
+            options.contentType = false;
+            options.success = function () {
+                location.reload();
+            };
+            options.error = function (msg) {
+                alert("Oops! An unexpected error occured.");
+            };
+            $.ajax(options);
+        }
     }
 
     $(document).ready(function () {

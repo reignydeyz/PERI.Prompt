@@ -45,16 +45,16 @@
                             <div class="form-group">
                                 <label>Category *</label>
                                 @foreach (var rec in Model.Item4)
-        {
-                        <div class="checkbox">
-                            <label>
-                                <label>
-                                    @Html.CheckBoxFor(x => x.Item4[rec.Key])
-                                    @rec.Key
-                                </label>
-                            </label>
-                        </div>
-}
+                                {
+                                    <div class="checkbox">
+                                        <label>
+                                            <label>
+                                                @Html.CheckBoxFor(x => x.Item4[rec.Key])
+                                                @rec.Key
+                                            </label>
+                                        </label>
+                                    </div>
+                                }
                             </div>
 
                             <div class="form-group">
@@ -71,7 +71,7 @@
 
                             <div class="form-group">
                                 <label>Attachments</label>
-                                <input type="file" name="attachments" accept=".7z, .bzip2, .gzip, .tar, .rar, .wim, .xz, .zip" id="fuAttachments" />
+                                <input type="file" name="attachments" accept=".7z, .bzip2, .gzip, .tar, .rar, .wim, .xz, .zip" id="fuAttachments" multiple/>
                             </div>
 
                             <div class="form-group">
