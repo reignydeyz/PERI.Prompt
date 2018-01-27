@@ -45,6 +45,7 @@ namespace PERI.Prompt.Web.Controllers
         [Route("SignIn")]
         public IActionResult SignIn()
         {
+            ViewData["Title"] = "Sign in";
             return View();
         }
 
@@ -95,6 +96,8 @@ namespace PERI.Prompt.Web.Controllers
         [Route("SignUp")]
         public IActionResult SignUp()
         {
+            ViewData["Title"] = "Sign up";
+
             var config = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Config");
 
             if (config.First(x => x.Key == "Allow signup").Value == "0")
@@ -283,6 +286,7 @@ namespace PERI.Prompt.Web.Controllers
         [Route("ForgotPassword")]
         public IActionResult ForgotPassword()
         {
+            ViewData["Title"] = "Forgot password";
             return View();
         }
 

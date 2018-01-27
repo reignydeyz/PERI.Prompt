@@ -19,6 +19,8 @@ namespace PERI.Prompt.Web.Controllers
 
             var rec = await new BLL.Event(context).Get(new EF.Event { EventId = id });
 
+            ViewData["Title"] = rec.Name;
+
             return View(rec);
         }
     }

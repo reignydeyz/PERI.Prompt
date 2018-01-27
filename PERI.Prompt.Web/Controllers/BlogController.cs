@@ -24,6 +24,8 @@ namespace PERI.Prompt.Web.Controllers
 
             var obj = await new BLL.Blog(context).Get(new EF.Blog { BlogId = blogId });
 
+            ViewData["Title"] = obj.Title;
+
             if (obj != null && obj.DatePublished <= DateTime.Now)
                 return View(obj);
             else
@@ -38,6 +40,8 @@ namespace PERI.Prompt.Web.Controllers
         [Route("Category/{categoryName}")]
         public async Task<IActionResult> Category(string categoryName)
         {
+            ViewData["Title"] = categoryName;
+
             var context = new EF.SampleDbContext();
 
             var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });

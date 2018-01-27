@@ -22,6 +22,8 @@ namespace PERI.Prompt.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Contact(Models.Contact args)
         {
+            ViewData["Title"] = "Contact";
+
             if (!ModelState.IsValid)
                 return View("Index");
 

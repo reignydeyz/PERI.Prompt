@@ -18,7 +18,10 @@ namespace PERI.Prompt.Web.Controllers
             var rec = await new BLL.Page(context).Get(new EF.Page { Permalink = permalink });
 
             if (rec != null)
+            {
+                ViewData["Title"] = rec.Title;
                 return View(rec);
+            }
             else
                 return StatusCode(404);
         }
