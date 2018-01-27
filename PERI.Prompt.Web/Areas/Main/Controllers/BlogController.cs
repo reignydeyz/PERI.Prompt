@@ -314,7 +314,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Preview(EF.Blog blog, IFormFile file)
+        public async Task<IActionResult> Preview(EF.Blog blog, IFormCollection files)
         {
             var context = new EF.SampleDbContext();
             var bllPhoto = new BLL.Photo(context);
@@ -338,22 +338,28 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             Response.Cookies.Append("preview_blog_title", blog.Title);
             Response.Cookies.Append("preview_blog_body", blog.Body);
 
-            int? photoId = null;
-            if (file != null && file.Length > 0)
-                photoId = await bllPhoto.Add(_environment, file);
-            else
+            foreach (var file in files.Files)
             {
-                if (blog.BlogId != 0)
+                if (file.Name == "photo")
                 {
-                    var bllBlog = new BLL.Blog(context);
-                    var blo = await bllBlog.Get(new EF.Blog { BlogId = blog.BlogId });
+                    int? photoId = null;
+                    if (file != null && file.Length > 0)
+                        photoId = await bllPhoto.Add(_environment, file);
+                    else
+                    {
+                        if (blog.BlogId != 0)
+                        {
+                            var bllBlog = new BLL.Blog(context);
+                            var blo = await bllBlog.Get(new EF.Blog { BlogId = blog.BlogId });
 
-                    if (blo.BlogPhoto.Count() > 0)
-                        photoId = blo.BlogPhoto.First().PhotoId;
+                            if (blo.BlogPhoto.Count() > 0)
+                                photoId = blo.BlogPhoto.First().PhotoId;
+                        }
+                    }
+
+                    Response.Cookies.Append("preview_blog_photoId", photoId.ToString());
                 }
             }
-
-            Response.Cookies.Append("preview_blog_photoId", photoId.ToString());
 
             return Json("Success!");
         }
