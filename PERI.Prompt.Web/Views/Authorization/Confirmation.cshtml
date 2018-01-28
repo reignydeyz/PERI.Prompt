@@ -3,7 +3,18 @@
 @{
     Layout = "~/Views/Shared/Blogger/Form.cshtml";
 }
+<script src="~/template/admin/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<script src="~/template/admin/plugins/jQueryUI/jquery-ui.js"></script>
+<link href="~/template/admin/pwd/strength.css" rel="stylesheet" />
+<script src="~/template/admin/pwd/strength.js"></script>
+<script type="text/javascript">
+    (function ($) {
+        $(document).ready(function () {
+            $("#NewPassword").strength({ strengthClass: 'strength', strengthButtonText: '' });
+        });
 
+    })(jQuery);
+</script>
 <p class="login-box-msg">Sign in to start your session</p>
 @using (Html.BeginForm())
 {
