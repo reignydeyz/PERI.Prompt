@@ -1,10 +1,12 @@
 ﻿@using EF = PERI.Prompt.EF
 @using Core = PERI.Prompt.Core
 @using BLL = PERI.Prompt.BLL
-@model EF.Blog
+@model Tuple<EF.Blog, DateTime?, DateTime?>
 @{
     Layout = "~/Views/Shared/Blogger/Main.cshtml";
 }
+
+<script type="text/javascript" src="~/template/admin/datetimepicker/js/moment.js"></script>
 
 <div class="row">
     <div class="col-lg-12">
@@ -14,21 +16,39 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-lg-12" id="main">
-                        @using (Html.BeginForm())
-                        {
-                            @Html.HiddenFor(x => x.CreatedBy)
-                            @Html.AntiForgeryToken()
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "main" }))
+                    {
+                        @Html.HiddenFor(x => x.Item1.CreatedBy)
+                        @Html.AntiForgeryToken()
+                        <div class="col-lg-12">
                             <div class="form-group">
                                 <label>Title</label>
-                                @Html.TextBoxFor(x => x.Title, new { @class = "form-control", @placeholder = "Title" })
+                                @Html.TextBoxFor(x => x.Item1.Title, new { @class = "form-control", @placeholder = "Title" })
                             </div>
+                        </div>
 
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Date Published (from)</label>
+                                @Html.TextBoxFor(x => x.Item2, new { @class = "form-control", @placeholder = "MM/DD/YYYY" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Date Published (to)</label>
+                                @Html.TextBoxFor(x => x.Item3, new { @class = "form-control", @placeholder = "MM/DD/YYYY" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
                             <span style="color:red">@Html.ValidationSummary()</span>
                             <button type="submit" class="btn btn-primary">Submit</button>
                             <button type="reset" class="btn btn-default" id="clear">Clear</button>
-                        }
-                    </div>
+                        </div>
+                    }
+
                     <!-- /.col-lg-6 (nested) -->
                     <!-- /.col-lg-6 (nested) -->
                 </div>
@@ -72,28 +92,28 @@
                     <tbody>
                         @foreach (var rec in (ViewBag.Data as IEnumerable<EF.Blog>))
                         {
-                        <tr class="odd gradeX">
-                            <td><input type="checkbox" class="checkBox" value="@rec.BlogId" /></td>
-                            <td>
+                            <tr class="odd gradeX">
+                                <td><input type="checkbox" class="checkBox" value="@rec.BlogId" /></td>
+                                <td>
 
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                        Action
-                                        <span class="fa fa-caret-down"></span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="~/Main/Blog/Edit/@rec.BlogId">Edit</a></li>
-                                    </ul>
-                                </div>
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            Action
+                                            <span class="fa fa-caret-down"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="~/Main/Blog/Edit/@rec.BlogId">Edit</a></li>
+                                        </ul>
+                                    </div>
 
-                            </td>
-                            <td>@rec.Title</td>
-                            <td>@String.Join(",", rec.BlogCategory.Select(x => x.Category.Name))</td>
-                            <td>@rec.CreatedBy</td>
-                            <td>@rec.DatePublished</td>
-                            <td>@String.Join(",", rec.BlogTag.Select(x => x.Tag.Name))</td>
-                            <td>@(rec.DateInactive == null)</td>
-                        </tr>
+                                </td>
+                                <td>@rec.Title</td>
+                                <td>@String.Join(",", rec.BlogCategory.Select(x => x.Category.Name))</td>
+                                <td>@rec.CreatedBy</td>
+                                <td>@rec.DatePublished</td>
+                                <td>@String.Join(",", rec.BlogTag.Select(x => x.Tag.Name))</td>
+                                <td>@(rec.DateInactive == null)</td>
+                            </tr>
                         }
 
                     </tbody>
@@ -116,12 +136,18 @@
 
 <script>
     $(document).ready(function () {
+
+        $(function () {
+            $('#Item2').datepicker();
+            $('#Item3').datepicker();
+        });
+
         $("#tbl").DataTable({
             "bFilter": false,
             "sPaginationType": "full_numbers",
             "order": [],
             "columnDefs": [{
-                "targets": [0, 1, 2],
+                "targets": [0, 1],
                 "orderable": false
             }]
         });
@@ -230,10 +256,12 @@
 
         $("#checkall").change(function () {
             /*$("input:checkbox").prop('checked', $(this).prop("checked"));*/
-            var chk = $(this).prop("checked");
+            /*var chk = $(this).prop("checked");
             $("#tbl").find('input[type=checkbox]').each(function () {
-                this.checked = chk;
-            });
+                this.checked = true;
+            });*/
+
+            $("#tbl input:checkbox").prop('checked', $(this).prop("checked"));
         });
     });
 </script>
