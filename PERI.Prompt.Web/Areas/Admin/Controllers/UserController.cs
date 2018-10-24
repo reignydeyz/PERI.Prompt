@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PERI.Prompt.BLL;
 using System;
@@ -43,6 +44,9 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         public IActionResult New()
         {
             ViewData["Title"] = "Users/New";
+
+            ViewBag.Roles = new BLL.Role(unitOfWork).DropDown();
+
             var obj = new Tuple<EF.User, bool>(new EF.User(), true);
             return View(obj);
         }
@@ -51,6 +55,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.User args, [Bind(Prefix = "Item2")] bool isactive)
         {
+            ViewBag.Roles = new BLL.Role(unitOfWork).DropDown();
+
             try
             {
                 if (!ModelState.IsValid)
@@ -80,6 +86,9 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             ViewData["Title"] = "User/Edit";
+
+            ViewBag.Roles = new BLL.Role(unitOfWork).DropDown();
+
             var rec = await new BLL.User(unitOfWork).Get(new EF.User { UserId = id });
             return View(new Tuple<EF.User, bool>(rec, rec.DateInactive == null));
         }
@@ -88,6 +97,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.User args, [Bind(Prefix = "Item2")] bool isactive)
         {
+            ViewBag.Roles = new BLL.Role(unitOfWork).DropDown();
+
             try
             {
                 if (!ModelState.IsValid)

@@ -63,7 +63,7 @@
                             <div class="form-group">
                                 <label>Role *</label>
                                 <div>
-                                    @Html.DropDownListFor(x => x.Item1.RoleId, new BLL.Role(new EF.SampleDbContext()).DropDown(), "--SELECT--", new { @class = "form-control", required = "" })
+                                    @Html.DropDownListFor(x => x.Item1.RoleId, ViewBag.Roles as SelectList, "--SELECT--", new { @class = "form-control", required = "" })
                                 </div>
                             </div>
 
