@@ -7,6 +7,16 @@ namespace PERI.Prompt.EF
 {
     public partial class SampleDbContext : DbContext
     {
+        public SampleDbContext()
+        {
+
+        }
+
+        public SampleDbContext(DbContextOptions<SampleDbContext> options) : base(options)
+        {
+
+        }
+
         public virtual DbSet<Attachment> Attachment { get; set; }
         public virtual DbSet<Blog> Blog { get; set; }
         public virtual DbSet<BlogAttachment> BlogAttachment { get; set; }
