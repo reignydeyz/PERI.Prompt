@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class EventPhoto : ISampleData<EF.EventPhoto>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public EventPhoto(EF.SampleDbContext dbcontext)
+        public EventPhoto(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.EventPhoto args)
         {
-            context.EventPhoto.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.EventPhotoRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.EventId;
         }
 
@@ -52,7 +52,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.EventPhoto args)
         {
-            var ep = context.EventPhoto.FirstOrDefault(x => x.EventId == args.EventId && x.PhotoId == args.PhotoId);
+            var ep = unitOfWork.EventPhotoRepository.Entities.FirstOrDefault(x => x.EventId == args.EventId && x.PhotoId == args.PhotoId);
 
             if (ep == null)
             {
@@ -62,7 +62,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.EventPhoto>> Find(EF.EventPhoto args)
         {
-            var res = await context.EventPhoto.Where(x => x.EventId == args.EventId).ToListAsync();
+            var res = await unitOfWork.EventPhotoRepository.Entities.Where(x => x.EventId == args.EventId).ToListAsync();
 
             return res;
         }
@@ -74,7 +74,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.EventPhoto>> Get(int[] ids)
         {
-            var res = await context.EventPhoto.Where(x => ids.Contains(x.EventId)).ToListAsync();
+            var res = await unitOfWork.EventPhotoRepository.Entities.Where(x => ids.Contains(x.EventId)).ToListAsync();
 
             return res;
         }

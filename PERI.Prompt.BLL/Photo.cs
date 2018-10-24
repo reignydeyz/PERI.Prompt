@@ -14,11 +14,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Photo : ISampleData<EF.Photo>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Photo(EF.SampleDbContext dbcontext)
+        public Photo(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -28,9 +28,9 @@ namespace PERI.Prompt.BLL
         /// <returns></returns>
         public async Task Delete(int id)
         {
-            var rec = context.Photo.First(x => x.PhotoId == id);
-            context.Photo.Remove(rec);
-            await context.SaveChangesAsync();
+            var rec = unitOfWork.PhotoRepository.Entities.First(x => x.PhotoId == id);
+            unitOfWork.PhotoRepository.Remove(rec);
+            await unitOfWork.CommitAsync();
         }
 
         /// <summary>
@@ -40,10 +40,10 @@ namespace PERI.Prompt.BLL
         /// <returns></returns>
         public async Task Delete(int[] ids)
         {
-            var res = context.Photo.Where(x => ids.Contains(x.PhotoId));
+            var res = unitOfWork.PhotoRepository.Entities.Where(x => ids.Contains(x.PhotoId));
 
-            context.Photo.RemoveRange(res);
-            await context.SaveChangesAsync();
+            unitOfWork.PhotoRepository.RemoveRange(res);
+            await unitOfWork.CommitAsync();
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace PERI.Prompt.BLL
 
             var photo = new EF.Photo();
             photo.Url = "uploads/" + newFileName;
-            context.Photo.Add(photo);
-            await context.SaveChangesAsync();
+            unitOfWork.PhotoRepository.Add(photo);
+            await unitOfWork.CommitAsync();
 
             // Upload                
             if (file.Length > 0)
@@ -104,35 +104,35 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Photo>> Find(EF.Photo args)
         {
-            return await context.Photo.ToListAsync();
+            return await unitOfWork.PhotoRepository.Entities.ToListAsync();
         }
 
         public async Task<EF.Photo> Get(EF.Photo args)
         {
-            return await context.Photo.FirstAsync(x => x.PhotoId == args.PhotoId);
+            return await unitOfWork.PhotoRepository.Entities.FirstAsync(x => x.PhotoId == args.PhotoId);
         }
 
         public async Task Delete(int id, IHostingEnvironment environment)
         {
-            var photo = context.Photo.First(x => x.PhotoId == id);
+            var photo = unitOfWork.PhotoRepository.Entities.First(x => x.PhotoId == id);
 
             // Remove the photo
             await Task.Run(() => System.IO.File.Delete(Path.Combine(environment.WebRootPath, photo.Url)));
 
-            context.Photo.Remove(photo);
-            await context.SaveChangesAsync();
+            unitOfWork.PhotoRepository.Remove(photo);
+            await unitOfWork.CommitAsync();
         }
 
         public async Task Delete(int[] ids, IHostingEnvironment environment)
         {
-            var res = context.Photo.Where(x => ids.Contains(x.PhotoId));
+            var res = unitOfWork.PhotoRepository.Entities.Where(x => ids.Contains(x.PhotoId));
 
             // Remove the photos
             foreach (var p in res)
                 await Task.Run(() => System.IO.File.Delete(Path.Combine(environment.WebRootPath, p.Url)));
 
-            context.Photo.RemoveRange(res);
-            await context.SaveChangesAsync();
+            unitOfWork.PhotoRepository.RemoveRange(res);
+            await unitOfWork.CommitAsync();
         }
     }
 }

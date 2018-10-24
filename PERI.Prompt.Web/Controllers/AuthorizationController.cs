@@ -8,6 +8,7 @@ using MailKit.Net.Smtp;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,6 +16,13 @@ namespace PERI.Prompt.Web.Controllers
 {
     public class AuthorizationController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public AuthorizationController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         /// <summary>
         /// This will signin the user
         /// </summary>
@@ -54,9 +62,7 @@ namespace PERI.Prompt.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(EF.User args)
         {
-            var context = new EF.SampleDbContext();
-
-            var buser = new BLL.User(context);
+            var buser = new BLL.User(unitOfWork);
 
             var user = await buser.Get(new EF.User { Email = args.Email });
 
@@ -119,11 +125,9 @@ namespace PERI.Prompt.Web.Controllers
                 if (!ModelState.IsValid)
                     return View();
 
-                var context = new EF.SampleDbContext();
-
                 // Add user
                 args.DateCreated = DateTime.Now;
-                await new BLL.User(context).Add(args);
+                await new BLL.User(unitOfWork).Add(args);
                                 
                 var smtpSettings = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Smtp");
                 var smtpDisplayName = smtpSettings.First(x => x.Key == "Smtp display name").Value;
@@ -176,11 +180,9 @@ namespace PERI.Prompt.Web.Controllers
         {
             try
             {
-                var context = new EF.SampleDbContext();
-
                 var configs = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Config");
                 var roleId = Convert.ToInt16(configs.First(x => x.Key == "Default RoleId").Value);
-                var role = (await new BLL.Role(context).GetById(roleId)).Name;
+                var role = (await new BLL.Role(unitOfWork).GetById(roleId)).Name;
 
                 if (!ModelState.IsValid)
                     return View("SignUp", args);                
@@ -191,7 +193,7 @@ namespace PERI.Prompt.Web.Controllers
 
                 // Add user
                 args.DateCreated = DateTime.Now;
-                await new BLL.User(context).Add(args);
+                await new BLL.User(unitOfWork).Add(args);
 
                 await AddClaimsAndSignIn(args);
 
@@ -244,8 +246,6 @@ namespace PERI.Prompt.Web.Controllers
         {
             ModelState.Clear();
 
-            var context = new EF.SampleDbContext();
-
             if (args.NewPassword != args.ReEnterNewPassword)
             {
                 ModelState.AddModelError(string.Empty, "New password & re-enter new password must match.");
@@ -256,7 +256,7 @@ namespace PERI.Prompt.Web.Controllers
                 var salt = Core.Crypto.GenerateSalt();
                 var enc = Core.Crypto.Hash(args.NewPassword, salt);
 
-                var rec = await new BLL.User(context).Get(new EF.User { UserId = args.UserId });                
+                var rec = await new BLL.User(unitOfWork).Get(new EF.User { UserId = args.UserId });                
                 rec.PasswordHash = enc;
                 rec.PasswordSalt = Convert.ToBase64String(salt);
                 rec.LastPasswordChanged = DateTime.Now;
@@ -265,7 +265,7 @@ namespace PERI.Prompt.Web.Controllers
                 rec.ConfirmationExpiry = null;
                 rec.DateInactive = null;
 
-                await new BLL.User(context).Edit(rec);
+                await new BLL.User(unitOfWork).Edit(rec);
 
                 await AddClaimsAndSignIn(rec);
 
@@ -299,8 +299,7 @@ namespace PERI.Prompt.Web.Controllers
             if (!ModelState.IsValid)
                 return View();
 
-            var context = new EF.SampleDbContext();
-            var user = await new BLL.User(context).Get(new EF.User { Email = args.Email });
+            var user = await new BLL.User(unitOfWork).Get(new EF.User { Email = args.Email });
 
             if (user == null || user.DateInactive != null)
             {
@@ -318,7 +317,7 @@ namespace PERI.Prompt.Web.Controllers
             user.ConfirmationExpiry = DateTime.Now.AddHours(12);
 
             // Update confirmation
-            await new BLL.User(context).Edit(user);
+            await new BLL.User(unitOfWork).Edit(user);
 
             var smtpSettings = (ViewBag.Settings as List<EF.Setting>).Where(x => x.Group == "Smtp");
             var smtpDisplayName = smtpSettings.First(x => x.Key == "Smtp display name").Value;

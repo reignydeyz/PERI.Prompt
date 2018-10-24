@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class GalleryPhoto : ISampleData<EF.GalleryPhoto>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public GalleryPhoto(EF.SampleDbContext dbcontext)
+        public GalleryPhoto(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.GalleryPhoto args)
         {
-            context.GalleryPhoto.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.GalleryPhotoRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.GalleryId;
         }
 
@@ -47,24 +47,24 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(EF.GalleryPhoto args)
         {
-            context.GalleryPhoto.Remove(args);
-            await context.SaveChangesAsync();
+            unitOfWork.GalleryPhotoRepository.Remove(args);
+            await unitOfWork.CommitAsync();
         }
 
         public async Task Edit(EF.GalleryPhoto args)
         {
-            var rec = context.GalleryPhoto.First(x => x.GalleryId == args.GalleryId && x.PhotoId == args.PhotoId);
+            var rec = unitOfWork.GalleryPhotoRepository.Entities.First(x => x.GalleryId == args.GalleryId && x.PhotoId == args.PhotoId);
             rec.Title = args.Title;
             rec.Description = args.Description;
             rec.ModifiedBy = args.ModifiedBy;
             rec.DateModified = DateTime.Now;
             rec.DateInactive = args.DateInactive;
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<EF.GalleryPhoto>> Find(EF.GalleryPhoto args)
         {
-            var res = await (from q in context.GalleryPhoto
+            var res = await (from q in unitOfWork.GalleryPhotoRepository.Entities
                     .Include(x => x.Photo)
                     .Where(x => x.Title.Contains(args.Title ?? x.Title) && x.GalleryId == (args.GalleryId == 0 ? x.GalleryId : args.GalleryId))
                                 select q).ToListAsync();
@@ -74,7 +74,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.GalleryPhoto> Get(EF.GalleryPhoto args)
         {
-            var rec = await context.GalleryPhoto
+            var rec = await unitOfWork.GalleryPhotoRepository.Entities
                 .Where(x => x.GalleryId == args.GalleryId && x.PhotoId == args.PhotoId)
                 .Include(x => x.Gallery)
                 .Include(x => x.Photo)

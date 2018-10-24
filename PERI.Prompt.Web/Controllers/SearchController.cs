@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,14 +12,19 @@ namespace PERI.Prompt.Web.Controllers
 {
     public class SearchController : BLL.BaseTemplateController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public SearchController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         public async Task<IActionResult> Index()
         {
             var qry = Request.Query["qry"].ToString();
-
-            var context = new EF.SampleDbContext();
-
-            var res = await new BLL.Blog(context).Find(new EF.Blog { Title = qry, Body = qry });
+            
+            var res = await new BLL.Blog(unitOfWork).Find(new EF.Blog { Title = qry, Body = qry });
             res = res.Where(x => x.DateInactive == null);
             int cnt = res.Count();
 

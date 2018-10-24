@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Template : ISampleData<EF.Template>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Template(EF.SampleDbContext dbcontext)
+        public Template(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -55,13 +55,13 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Template>> Find(EF.Template args)
         {
-            var res = await context.Template.Where(x => x.Name.Contains(args.Name ?? x.Name)).ToListAsync();
+            var res = await unitOfWork.TemplateRepository.Entities.Where(x => x.Name.Contains(args.Name ?? x.Name)).ToListAsync();
             return res;
         }
 
         public async Task<EF.Template> Get(EF.Template args)
         {
-            var res = await context.Template.FirstOrDefaultAsync(x =>
+            var res = await unitOfWork.TemplateRepository.Entities.FirstOrDefaultAsync(x =>
                 x.Name == (args.Name ?? x.Name)
                 && x.TemplateId == (args.TemplateId == 0 ? x.TemplateId : args.TemplateId)
             );

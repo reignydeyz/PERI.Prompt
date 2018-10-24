@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using PERI.Prompt.BLL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,9 +21,13 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
+        private readonly EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IHostingEnvironment _environment;
-        public BlogController(IHostingEnvironment environment)
+        public BlogController(IUnitOfWork unitOfWork, IHostingEnvironment environment, EF.SampleDbContext context)
         {
+            this.context = context;
+            this.unitOfWork = unitOfWork;
             _environment = environment;
         }
 
@@ -31,9 +36,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Blogs";
 
-            var context = new EF.SampleDbContext();
-
-            ViewBag.Data = await new BLL.Blog(context).Find(new EF.Blog());
+            ViewBag.Data = await new BLL.Blog(unitOfWork).Find(new EF.Blog());
             return View();
         }
 
@@ -42,8 +45,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public async Task<IActionResult> Index(EF.Blog args)
         {
             ViewData["Title"] = "Blogs";
-            var context = new EF.SampleDbContext();
-            ViewBag.Data = await new BLL.Blog(context).Find(args);
+            ViewBag.Data = await new BLL.Blog(unitOfWork).Find(args);
             return View();
         }
 
@@ -51,9 +53,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {            
             ViewData["Title"] = "Blog/New";
             
-            var context = new EF.SampleDbContext();
             var dict = new Dictionary<string, bool>();
-            var categories = await new BLL.Category(context).Find(new EF.Category());
+            var categories = await new BLL.Category(unitOfWork).Find(new EF.Category());
             foreach (var c in categories)
                 dict.Add(c.Name, false);
 
@@ -67,8 +68,6 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Blog/New";
 
-            var context = new EF.SampleDbContext();
-
             using (var txn = context.Database.BeginTransaction())
             {
                 try
@@ -76,7 +75,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     model.VisibilityId = 1;
                     model.CreatedBy = User.Identity.Name;
 
-                    var bblog = new BLL.Blog(context);
+                    var bblog = new BLL.Blog(unitOfWork);
 
                     // Add Blog
                     if (!isactive)
@@ -89,8 +88,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     // Add BlogCategory
                     foreach (var category in categories.Where(x => x.Value == true))
                     {
-                        var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
-                        await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
+                        var c = await new BLL.Category(unitOfWork).Get(new EF.Category { Name = category.Key });
+                        await new BLL.BlogCategory(unitOfWork).Add(new EF.BlogCategory { BlogId = id, CategoryId = c.CategoryId });
                     }
 
                     foreach (var file in files.Files)
@@ -101,12 +100,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                             IFormFile uploadedImage = file;
                             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                             {
-                                var pid = await new BLL.Photo(context).Add(_environment, file);
+                                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                                 var bp = new EF.BlogPhoto();
                                 bp.BlogId = id;
                                 bp.PhotoId = pid;
-                                await new BLL.BlogPhoto(context).Add(bp);
+                                await new BLL.BlogPhoto(unitOfWork).Add(bp);
                             }
                         }
                         else if (file.Name == "attachments")
@@ -114,12 +113,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                             // Add Attachment
                             if (file.Length > 0)
                             {
-                                var aid = await new BLL.Attachment(context).Add(_environment, file);
+                                var aid = await new BLL.Attachment(unitOfWork).Add(_environment, file);
 
                                 var ba = new EF.BlogAttachment();
                                 ba.BlogId = id;
                                 ba.AttachmentId = aid;
-                                await new BLL.BlogAttachment(context).Add(ba);
+                                await new BLL.BlogAttachment(unitOfWork).Add(ba);
                             }
                         }
                     }
@@ -129,8 +128,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     {
                         foreach (var tag in tags.Split(','))
                         {
-                            var tid = await new BLL.Tag(context).Add(new EF.Tag { Name = tag });
-                            await new BLL.BlogTag(context).Add(new EF.BlogTag { BlogId = id, TagId = tid });
+                            var tid = await new BLL.Tag(unitOfWork).Add(new EF.Tag { Name = tag });
+                            await new BLL.BlogTag(unitOfWork).Add(new EF.BlogTag { BlogId = id, TagId = tid });
                         }
                     }
 
@@ -155,9 +154,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Blog/Edit";
 
-            var context = new EF.SampleDbContext();
-
-            var obj = await (new BLL.Blog(context).GetModel(id));
+            var obj = await (new BLL.Blog(unitOfWork).GetModel(id));
             return View(obj);
         }
 
@@ -167,8 +164,6 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Blog/Edit";
 
-            var context = new EF.SampleDbContext();
-
             using (var txn = context.Database.BeginTransaction())
             {
                 try
@@ -177,14 +172,14 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
                     // Update Category
                     // Delete all
-                    var bblogcategory = new BLL.BlogCategory(context);
+                    var bblogcategory = new BLL.BlogCategory(unitOfWork);
                     var cats = await bblogcategory.Find(new EF.BlogCategory { BlogId = model.BlogId });
                     await bblogcategory.Delete(cats.ToList());
                     // Add
                     foreach (var category in categories.Where(x => x.Value == true))
                     {
-                        var c = await new BLL.Category(context).Get(new EF.Category { Name = category.Key });
-                        await new BLL.BlogCategory(context).Add(new EF.BlogCategory { BlogId = model.BlogId, CategoryId = c.CategoryId });
+                        var c = await new BLL.Category(unitOfWork).Get(new EF.Category { Name = category.Key });
+                        await new BLL.BlogCategory(unitOfWork).Add(new EF.BlogCategory { BlogId = model.BlogId, CategoryId = c.CategoryId });
                     }
 
                     // Update Blog
@@ -193,7 +188,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     else
                         model.DateInactive = null;
 
-                    await new BLL.Blog(context).Edit(model);
+                    await new BLL.Blog(unitOfWork).Edit(model);
 
                     foreach (var file in files.Files)
                     {
@@ -203,12 +198,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                             IFormFile uploadedImage = file;
                             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                             {
-                                var bblogphoto = new BLL.BlogPhoto(context);
+                                var bblogphoto = new BLL.BlogPhoto(unitOfWork);
                                 var blogphotos = await bblogphoto.Find(new EF.BlogPhoto { BlogId = model.BlogId });
                                 if (blogphotos.Count() > 0)
-                                    await new BLL.Photo(context).Delete(blogphotos.First().PhotoId, _environment);
+                                    await new BLL.Photo(unitOfWork).Delete(blogphotos.First().PhotoId, _environment);
 
-                                var pid = await new BLL.Photo(context).Add(_environment, file);
+                                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                                 var bp = new EF.BlogPhoto();
                                 bp.BlogId = model.BlogId;
@@ -221,12 +216,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                             // Add Attachment
                             if (file.Length > 0)
                             {
-                                var aid = await new BLL.Attachment(context).Add(_environment, file);
+                                var aid = await new BLL.Attachment(unitOfWork).Add(_environment, file);
 
                                 var ba = new EF.BlogAttachment();
                                 ba.BlogId = model.BlogId;
                                 ba.AttachmentId = aid;
-                                await new BLL.BlogAttachment(context).Add(ba);
+                                await new BLL.BlogAttachment(unitOfWork).Add(ba);
                             }
                         }
                     }
@@ -236,8 +231,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     {
                         foreach (var tag in tags.Split(','))
                         {
-                            var tid = await new BLL.Tag(context).Add(new EF.Tag { Name = tag });
-                            await new BLL.BlogTag(context).Edit(new EF.BlogTag { BlogId = model.BlogId, TagId = tid });
+                            var tid = await new BLL.Tag(unitOfWork).Add(new EF.Tag { Name = tag });
+                            await new BLL.BlogTag(unitOfWork).Edit(new EF.BlogTag { BlogId = model.BlogId, TagId = tid });
                         }
                     }
 
@@ -248,7 +243,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     else
                         tagsArr = tags.Split(',');
 
-                    await new BLL.BlogTag(context).Clean(tagsArr);
+                    await new BLL.BlogTag(unitOfWork).Clean(tagsArr);
 
                     txn.Commit();
                 }
@@ -270,19 +265,17 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bblog = new BLL.Blog(context);
+            var bblog = new BLL.Blog(unitOfWork);
 
             // Delete photos
-            var blogphotos = await new BLL.BlogPhoto(context).Get(ids);
+            var blogphotos = await new BLL.BlogPhoto(unitOfWork).Get(ids);
             if (blogphotos.Count() > 0)
-                await new BLL.Photo(context).Delete(blogphotos.Select(x => x.PhotoId).ToArray(), _environment);
+                await new BLL.Photo(unitOfWork).Delete(blogphotos.Select(x => x.PhotoId).ToArray(), _environment);
 
             // Delete attachments
-            var blogattachments = await new BLL.BlogAttachment(context).Get(ids);
+            var blogattachments = await new BLL.BlogAttachment(unitOfWork).Get(ids);
             if (blogattachments.Count() > 0)
-                await new BLL.Attachment(context).Delete(blogattachments.Select(x => x.AttachmentId).ToArray(), _environment);
+                await new BLL.Attachment(unitOfWork).Delete(blogattachments.Select(x => x.AttachmentId).ToArray(), _environment);
 
             await bblog.Delete(ids);            
 
@@ -292,9 +285,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Activate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bblog = new BLL.Blog(context);
+            var bblog = new BLL.Blog(unitOfWork);
 
             await bblog.Activate(ids);
 
@@ -304,9 +295,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Deactivate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bblog = new BLL.Blog(context);
+            var bblog = new BLL.Blog(unitOfWork);
 
             await bblog.Deactivate(ids);
 
@@ -316,9 +305,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Preview(EF.Blog blog, IFormCollection files)
         {
-            var context = new EF.SampleDbContext();
-            var bllPhoto = new BLL.Photo(context);
-            var bllBlogPhoto = new BLL.BlogPhoto(context);
+            var bllPhoto = new BLL.Photo(unitOfWork);
+            var bllBlogPhoto = new BLL.BlogPhoto(unitOfWork);
 
             if (!String.IsNullOrEmpty(Request.Cookies["preview_blog_photoId"]))
             {
@@ -349,7 +337,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                     {
                         if (blog.BlogId != 0)
                         {
-                            var bllBlog = new BLL.Blog(context);
+                            var bllBlog = new BLL.Blog(unitOfWork);
                             var blo = await bllBlog.Get(new EF.Blog { BlogId = blog.BlogId });
 
                             if (blo.BlogPhoto.Count() > 0)
@@ -367,9 +355,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [Route("Main/Blog/DeleteBlogAttachment/{blogId:int}/{attachmentId:int}")]
         public async Task<IActionResult> DeleteBlogAttachment(int blogId, int attachmentId)
         {
-            var context = new EF.SampleDbContext();
-
-            await new BLL.Attachment(context).Delete(attachmentId, _environment);
+            await new BLL.Attachment(unitOfWork).Delete(attachmentId, _environment);
 
             return new EmptyResult();
         }

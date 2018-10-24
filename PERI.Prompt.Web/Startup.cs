@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using NLog.Extensions.Logging;
 using NLog.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace PERI.Prompt.Web
 {
@@ -34,6 +35,9 @@ namespace PERI.Prompt.Web
             services.AddSingleton<IConfiguration>(Core.Setting.Configuration);
             services.AddScoped<BLL.ValidateReCaptchaAttribute>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddDbContext<EF.SampleDbContext>(options => options.UseSqlServer(Core.Setting.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
+            services.AddScoped<BLL.IUnitOfWork, BLL.UnitOfWork>();
         }
 
         public Startup(IHostingEnvironment env)

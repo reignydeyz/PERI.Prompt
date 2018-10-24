@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class SectionItem : ISampleData<EF.SectionItem>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public SectionItem(EF.SampleDbContext dbcontext)
+        public SectionItem(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.SectionItem args)
         {
-            context.SectionItem.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.SectionItemRepository.Add(args);
+            await unitOfWork.CommitAsync();
 
             return args.SectionItemId;
         }
@@ -43,9 +43,9 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids)
         {
-            var res = context.SectionItem.Where(x => ids.Contains(x.SectionItemId));
-            context.SectionItem.RemoveRange(res);
-            await context.SaveChangesAsync();
+            var res = unitOfWork.SectionItemRepository.Entities.Where(x => ids.Contains(x.SectionItemId));
+            unitOfWork.SectionItemRepository.RemoveRange(res);
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(EF.SectionItem args)
@@ -55,19 +55,19 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.SectionItem args)
         {
-            var rec = await context.SectionItem.FirstAsync(x => x.SectionItemId == args.SectionItemId);
+            var rec = await unitOfWork.SectionItemRepository.Entities.FirstAsync(x => x.SectionItemId == args.SectionItemId);
             rec.Title = args.Title ?? rec.Title;
             rec.Body = args.Body ?? args.Body;
             rec.Order = args.Order;
             rec.ModifiedBy = args.ModifiedBy ?? rec.ModifiedBy;
             rec.DateModified = DateTime.Now;
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<EF.SectionItem>> Find(EF.SectionItem args)
         {
-            var res = await context.SectionItem
+            var res = await unitOfWork.SectionItemRepository.Entities
                 .Include(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
                 .Include(x => x.Section)
                 .Include(x => x.SectionItemProperty).ThenInclude(x => x.SectionProperty)
@@ -79,7 +79,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.SectionItem> Get(EF.SectionItem args)
         {
-            var rec = await context.SectionItem
+            var rec = await unitOfWork.SectionItemRepository.Entities
                 .Include(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
                 .Include(x => x.Section)
                 .Include(x => x.SectionItemProperty).ThenInclude(x => x.SectionProperty)

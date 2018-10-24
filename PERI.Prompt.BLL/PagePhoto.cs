@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class PagePhoto : ISampleData<EF.PagePhoto>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public PagePhoto(EF.SampleDbContext dbcontext)
+        public PagePhoto(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.PagePhoto args)
         {
-            context.PagePhoto.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.PagePhotoRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.PageId;
         }
 
@@ -52,7 +52,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.PagePhoto args)
         {
-            var bp = context.PagePhoto.FirstOrDefault(x => x.PageId == args.PageId && x.PhotoId == args.PhotoId);
+            var bp = unitOfWork.PagePhotoRepository.Entities.FirstOrDefault(x => x.PageId == args.PageId && x.PhotoId == args.PhotoId);
 
             if (bp == null)
             {
@@ -62,7 +62,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.PagePhoto>> Find(EF.PagePhoto args)
         {
-            var res = await context.PagePhoto.Where(x => x.PageId == args.PageId).ToListAsync();
+            var res = await unitOfWork.PagePhotoRepository.Entities.Where(x => x.PageId == args.PageId).ToListAsync();
 
             return res;
         }
@@ -74,7 +74,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.PagePhoto>> Get(int[] ids)
         {
-            var res = await context.PagePhoto.Where(x => ids.Contains(x.PageId)).ToListAsync();
+            var res = await unitOfWork.PagePhotoRepository.Entities.Where(x => ids.Contains(x.PageId)).ToListAsync();
 
             return res;
         }

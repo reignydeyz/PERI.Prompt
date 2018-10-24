@@ -9,11 +9,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class BlogTag : ISampleData<EF.BlogTag>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BlogTag(EF.SampleDbContext dbcontext)
+        public BlogTag(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -23,8 +23,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.BlogTag args)
         {
-            context.BlogTag.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.BlogTagRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.TagId;
         }
 
@@ -50,7 +50,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.BlogTag args)
         {
-            var bt = context.BlogTag.FirstOrDefault(x => x.BlogId == args.BlogId && x.TagId == args.TagId);
+            var bt = unitOfWork.BlogTagRepository.Entities.FirstOrDefault(x => x.BlogId == args.BlogId && x.TagId == args.TagId);
 
             if (bt == null)
             {
@@ -70,15 +70,15 @@ namespace PERI.Prompt.BLL
 
         public async Task Clean(string[] tags)
         {
-            var tagsToBeRemoved = from res in context.BlogTag
+            var tagsToBeRemoved = from res in unitOfWork.BlogTagRepository.Entities
                             .Include(x => x.Tag)
                                     where !tags.Contains(res.Tag.Name)
                                     select res;
 
             foreach (var rec in tagsToBeRemoved)
-                context.Remove(rec);
+                unitOfWork.BlogTagRepository.Remove(rec);
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
     }
 }

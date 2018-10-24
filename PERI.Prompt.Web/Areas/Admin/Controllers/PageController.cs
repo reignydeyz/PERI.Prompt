@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,18 +18,19 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class PageController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly IHostingEnvironment _environment;
-        public PageController(IHostingEnvironment environment)
+        public PageController(IUnitOfWork unitOfWork, IHostingEnvironment environment)
         {
+            this.unitOfWork = unitOfWork;
             _environment = environment;
         }
 
         // GET: /<controller>/
         public async Task<IActionResult> Index()
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "Pages";
-            ViewBag.Data = await new BLL.Page(context).Find(new EF.Page());
+            ViewBag.Data = await new BLL.Page(unitOfWork).Find(new EF.Page());
             return View();
         }
 
@@ -36,9 +38,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EF.Page args)
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "Pages";
-            ViewBag.Data = await new BLL.Page(context).Find(args);
+            ViewBag.Data = await new BLL.Page(unitOfWork).Find(args);
             return View();
         }
 
@@ -57,11 +58,9 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
             try
             {
-                var context = new EF.SampleDbContext();
-
                 model.CreatedBy = User.Identity.Name;
 
-                var bpage = new BLL.Page(context);
+                var bpage = new BLL.Page(unitOfWork);
 
                 // Add Page
                 if (!isactive)
@@ -73,12 +72,12 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                 IFormFile uploadedImage = file;
                 if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    var pid = await new BLL.Photo(context).Add(_environment, file);
+                    var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                     var pp = new EF.PagePhoto();
                     pp.PageId = id;
                     pp.PhotoId = pid;
-                    await new BLL.PagePhoto(context).Add(pp);
+                    await new BLL.PagePhoto(unitOfWork).Add(pp);
                 }
 
                 return Redirect("~/Admin/Page");
@@ -92,9 +91,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "Page/Edit";
-            var obj = await new BLL.Page(context).GetModel(id);
+            var obj = await new BLL.Page(unitOfWork).GetModel(id);
             return View(obj);
         }
 
@@ -106,31 +104,29 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
             try
             {
-                var context = new EF.SampleDbContext();
-
                 model.ModifiedBy = User.Identity.Name;
 
                 // Update Page
                 if (!isactive)
                     model.DateInactive = DateTime.Now;
 
-                await new BLL.Page(context).Edit(model);
+                await new BLL.Page(unitOfWork).Edit(model);
 
                 // Update Photo
                 IFormFile uploadedImage = file;
                 if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
                 {
-                    var bpagephoto = new BLL.PagePhoto(context);
+                    var bpagephoto = new BLL.PagePhoto(unitOfWork);
                     var pagephotos = await bpagephoto.Find(new EF.PagePhoto { PageId = model.PageId });
                     if (pagephotos.Count() > 0)
-                        await new BLL.Photo(context).Delete(pagephotos.First().PhotoId, _environment);
+                        await new BLL.Photo(unitOfWork).Delete(pagephotos.First().PhotoId, _environment);
 
-                    var pid = await new BLL.Photo(context).Add(_environment, file);
+                    var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                     var pp = new EF.PagePhoto();
                     pp.PageId = model.PageId;
                     pp.PhotoId = pid;
-                    await new BLL.PagePhoto(context).Edit(pp);
+                    await new BLL.PagePhoto(unitOfWork).Edit(pp);
                 }
 
                 return Redirect("~/Admin/Page");
@@ -145,14 +141,12 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bpage = new BLL.Page(context);
+            var bpage = new BLL.Page(unitOfWork);
 
             // Delete photos
-            var pagephotos = await new BLL.PagePhoto(context).Get(ids);
+            var pagephotos = await new BLL.PagePhoto(unitOfWork).Get(ids);
             if (pagephotos.Count() > 0)
-                await new BLL.Photo(context).Delete(pagephotos.Select(x => x.PhotoId).ToArray(), _environment);
+                await new BLL.Photo(unitOfWork).Delete(pagephotos.Select(x => x.PhotoId).ToArray(), _environment);
 
             await bpage.Delete(ids);
 
@@ -162,9 +156,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Activate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bpage = new BLL.Page(context);
+            var bpage = new BLL.Page(unitOfWork);
 
             await bpage.Activate(ids);
 
@@ -174,9 +166,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Deactivate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bpage = new BLL.Page(context);
+            var bpage = new BLL.Page(unitOfWork);
 
             await bpage.Deactivate(ids);
 

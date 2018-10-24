@@ -12,45 +12,44 @@ namespace PERI.Prompt.BLL
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            using (var context = new EF.SampleDbContext())
-            {
-                var template = context.Template.First(x => x.DateInactive == null);
+            var unitOfWork = new UnitOfWork(new EF.SampleDbContext());
+            
+            var template = unitOfWork.TemplateRepository.Entities.First(x => x.DateInactive == null);
 
-                var now = DateTime.Now;
+            var now = DateTime.Now;
 
-                ViewBag.LatestBlogs = context.Blog
-                    .Where(x => x.DateInactive == null && x.DatePublished <= now)
-                    .OrderByDescending(x => x.DatePublished).Take(5)
-                    .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo).ToList();
+            ViewBag.LatestBlogs = unitOfWork.BlogRepository.Entities
+                .Where(x => x.DateInactive == null && x.DatePublished <= now)
+                .OrderByDescending(x => x.DatePublished).Take(5)
+                .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo).ToList();
 
-                ViewBag.Categories = (from c in context.Category.Where(x => x.DateInactive == null)
-                                     join bc in context.BlogCategory on c.CategoryId equals bc.CategoryId
-                                     join b in context.Blog.Where(x => x.DateInactive == null && x.DatePublished <= now) on bc.BlogId equals b.BlogId
-                                     group c by new { c.CategoryId, c.Name } into g
-                                     select new CategoryBlogs
-                                     {
-                                         CategoryId = g.Key.CategoryId,
-                                         CategoryName = g.Key.Name,
-                                         BlogCount = g.Count()
-                                     }).ToList();
+            ViewBag.Categories = (from c in unitOfWork.CategoryRepository.Entities.Where(x => x.DateInactive == null)
+                                    join bc in unitOfWork.BlogCategoryRepository.Entities on c.CategoryId equals bc.CategoryId
+                                    join b in unitOfWork.BlogRepository.Entities.Where(x => x.DateInactive == null && x.DatePublished <= now) on bc.BlogId equals b.BlogId
+                                    group c by new { c.CategoryId, c.Name } into g
+                                    select new CategoryBlogs
+                                    {
+                                        CategoryId = g.Key.CategoryId,
+                                        CategoryName = g.Key.Name,
+                                        BlogCount = g.Count()
+                                    }).ToList();
 
-                ViewBag.Events = context.Event.Where(x => x.DateInactive == null && x.Time > DateTime.Now)
-                                 .Include(x => x.EventPhoto).ThenInclude(x => x.Photo).OrderBy(x => x.Time).ToList();
+            ViewBag.Events = unitOfWork.EventRepository.Entities.Where(x => x.DateInactive == null && x.Time > DateTime.Now)
+                                .Include(x => x.EventPhoto).ThenInclude(x => x.Photo).OrderBy(x => x.Time).ToList();
 
-                ViewBag.Menus = context.Menu.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
+            ViewBag.Menus = unitOfWork.MenuRepository.Entities.Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem).ToList();
 
-                ViewBag.Tags = context.Tag.Include(x => x.BlogTag)
-                    .Where(x => x.BlogTag.Count() > 0)
-                    .OrderByDescending(x => x.BlogTag.Count())
-                    .ToList();
+            ViewBag.Tags = unitOfWork.TagRepository.Entities.Include(x => x.BlogTag)
+                .Where(x => x.BlogTag.Count() > 0)
+                .OrderByDescending(x => x.BlogTag.Count())
+                .ToList();
 
-                ViewBag.Sections = context.Section
-                    .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
-                    .Include(x => x.SectionProperty).ThenInclude(x => x.SectionItemProperty)
-                    .Where(x => x.TemplateId == template.TemplateId).ToList();
+            ViewBag.Sections = unitOfWork.SectionRepository.Entities
+                .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
+                .Include(x => x.SectionProperty).ThenInclude(x => x.SectionItemProperty)
+                .Where(x => x.TemplateId == template.TemplateId).ToList();
 
-                base.OnActionExecuting(filterContext);
-            }
+            base.OnActionExecuting(filterContext);
         }
     }
 }

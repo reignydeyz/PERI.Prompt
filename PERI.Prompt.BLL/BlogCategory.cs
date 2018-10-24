@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class BlogCategory : ISampleData<EF.BlogCategory>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BlogCategory(EF.SampleDbContext dbcontext)
+        public BlogCategory(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.BlogCategory args)
         {
-            await context.BlogCategory.AddAsync(args);
-            await context.SaveChangesAsync();
+            await unitOfWork.BlogCategoryRepository.AddAsync(args);
+            await unitOfWork.CommitAsync();
 
             return args.BlogId;
         }
@@ -53,8 +53,8 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(List<EF.BlogCategory> args)
         {
-            context.RemoveRange(args);
-            await context.SaveChangesAsync();
+            unitOfWork.BlogCategoryRepository.RemoveRange(args);
+            await unitOfWork.CommitAsync();
         }
 
         public Task Edit(EF.BlogCategory args)
@@ -64,7 +64,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogCategory>> Find(EF.BlogCategory args)
         {
-            return await context.BlogCategory.Where(x => x.BlogId == args.BlogId).ToListAsync();
+            return await unitOfWork.BlogCategoryRepository.Entities.Where(x => x.BlogId == args.BlogId).ToListAsync();
         }
 
         public Task<EF.BlogCategory> Get(EF.BlogCategory args)

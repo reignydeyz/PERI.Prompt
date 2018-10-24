@@ -9,20 +9,20 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Blog : ISampleData<EF.Blog>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Blog(EF.SampleDbContext dbcontext)
+        public Blog(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public async Task Activate(int[] ids)
         {
-            var res = context.Blog.Where(x => ids.Contains(x.BlogId));
+            var res = unitOfWork.BlogRepository.Entities.Where(x => ids.Contains(x.BlogId));
 
             await res.ForEachAsync(x => x.DateInactive = null);
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<int> Add(EF.Blog args)
@@ -30,18 +30,18 @@ namespace PERI.Prompt.BLL
             args.DateCreated = DateTime.Now;
             args.ModifiedBy = args.CreatedBy;
             args.DateModified = args.DateCreated;
-            context.Blog.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.BlogRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.BlogId;
         }
 
         public async Task Deactivate(int[] ids)
         {
-            var res = context.Blog.Where(x => ids.Contains(x.BlogId));
+            var res = unitOfWork.BlogRepository.Entities.Where(x => ids.Contains(x.BlogId));
 
             await res.ForEachAsync(x => x.DateInactive = DateTime.Now);
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(int id)
@@ -51,8 +51,8 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids)
         {
-            context.Blog.RemoveRange(context.Blog.Where(x => ids.Contains(x.BlogId)));
-            await context.SaveChangesAsync();
+            unitOfWork.BlogRepository.RemoveRange(unitOfWork.BlogRepository.Entities.Where(x => ids.Contains(x.BlogId)));
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(EF.Blog args)
@@ -62,18 +62,18 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.Blog args)
         {
-            var rec = context.Blog.First(x => x.BlogId == args.BlogId);
+            var rec = unitOfWork.BlogRepository.Entities.First(x => x.BlogId == args.BlogId);
             rec.Title = args.Title;
             rec.Body = args.Body;
             rec.ModifiedBy = args.ModifiedBy;
             rec.DateModified = DateTime.Now;
             rec.DateInactive = args.DateInactive;
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<EF.Blog>> Find(EF.Blog args)
         {
-            var res = await (from c in context.Blog
+            var res = await (from c in unitOfWork.BlogRepository.Entities
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
@@ -92,14 +92,14 @@ namespace PERI.Prompt.BLL
         /// <returns>List of Blogs</returns>
         public async Task<IEnumerable<EF.Blog>> FindByCategoryId(int id)
         {
-            var blogSortOrderId = (await context.Category.FirstAsync(x => x.CategoryId == id)).BlogSortOrderId;
+            var blogSortOrderId = (await unitOfWork.CategoryRepository.Entities.FirstAsync(x => x.CategoryId == id)).BlogSortOrderId;
 
-            var res = await (from b in context.Blog
+            var res = await (from b in unitOfWork.BlogRepository.Entities
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogCategory).ThenInclude(x => x.Category)
-                    join bc in context.BlogCategory on b.BlogId equals bc.BlogId
-                    join c in context.Category on bc.CategoryId equals c.CategoryId
+                    join bc in unitOfWork.BlogCategoryRepository.Entities on b.BlogId equals bc.BlogId
+                    join c in unitOfWork.CategoryRepository.Entities on bc.CategoryId equals c.CategoryId
                     where c.CategoryId == id
                     && b.VisibilityId == 1
                              select b).ToListAsync();
@@ -130,7 +130,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Blog> Get(EF.Blog args)
         {
-            var rec = await context.Blog
+            var rec = await unitOfWork.BlogRepository.Entities
                     .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
                     .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
                     .Include(x => x.BlogAttachment).ThenInclude(x => x.Attachment)
@@ -142,7 +142,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<Tuple<EF.Blog, string, bool, Dictionary<string, bool>>> GetModel(int id)
         {
-            var rec = await context.Blog
+            var rec = await unitOfWork.BlogRepository.Entities
             .Include(x => x.BlogAttachment).ThenInclude(x => x.Attachment)
             .Include(x => x.BlogPhoto).ThenInclude(x => x.Photo)
             .Include(x => x.BlogTag).ThenInclude(x => x.Tag)
@@ -152,7 +152,7 @@ namespace PERI.Prompt.BLL
             var csv = String.Join(",", rec.BlogTag.Select(x => x.Tag.Name));
 
             var dict = new Dictionary<string, bool>();
-            var categories = await (from c in context.Category
+            var categories = await (from c in unitOfWork.CategoryRepository.Entities
                              join bc in rec.BlogCategory on c.CategoryId equals bc.CategoryId into jointable
                              from z in jointable.DefaultIfEmpty()
                              select new

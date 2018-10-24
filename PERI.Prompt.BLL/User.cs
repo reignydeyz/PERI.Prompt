@@ -12,22 +12,22 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class User : ISampleData<EF.User>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public User(EF.SampleDbContext dbcontext)
+        public User(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public enum Roles { Admin = 1, User = 2 };
 
         public async Task Activate(int[] ids)
         {
-            var res = context.User.Where(x => ids.Contains(x.UserId));
+            var res = unitOfWork.UserRepository.Entities.Where(x => ids.Contains(x.UserId));
 
             await res.ForEachAsync(x => x.DateInactive = null);
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<int> Add(EF.User args)
@@ -36,7 +36,7 @@ namespace PERI.Prompt.BLL
             var enc = Core.Crypto.Hash(args.PasswordHash ?? Guid.NewGuid().ToString(), salt);
 
             // default RoleId
-            var roleId = Convert.ToInt16((await context.Setting.FirstAsync(x => x.Key == "Default RoleId")).Value);
+            var roleId = Convert.ToInt16((await unitOfWork.SettingRepository.Entities.FirstAsync(x => x.Key == "Default RoleId")).Value);
 
             // Generate ConfirmationCode
             Guid g = Guid.NewGuid();
@@ -53,19 +53,19 @@ namespace PERI.Prompt.BLL
             args.ConfirmationCode = guidString;
             args.ConfirmationExpiry = DateTime.Now.AddHours(12);
 
-            context.User.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.UserRepository.Add(args);
+            await unitOfWork.CommitAsync();
 
             return args.UserId;
         }
 
         public async Task Deactivate(int[] ids)
         {
-            var res = context.User.Where(x => ids.Contains(x.UserId));
+            var res = unitOfWork.UserRepository.Entities.Where(x => ids.Contains(x.UserId));
 
             await res.ForEachAsync(x => x.DateInactive = DateTime.Now);
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(int id)
@@ -75,8 +75,8 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids)
         {
-            context.User.RemoveRange(context.User.Where(x => ids.Contains(x.UserId)));
-            await context.SaveChangesAsync();
+            unitOfWork.UserRepository.RemoveRange(unitOfWork.UserRepository.Entities.Where(x => ids.Contains(x.UserId)));
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(EF.User args)
@@ -86,7 +86,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.User args)
         {
-            var rec = context.User.First(x => x.UserId == args.UserId);
+            var rec = unitOfWork.UserRepository.Entities.First(x => x.UserId == args.UserId);
 
             if (args.PasswordHash != rec.PasswordHash)
             {
@@ -103,12 +103,12 @@ namespace PERI.Prompt.BLL
             rec.ConfirmationExpiry = args.ConfirmationExpiry;
             rec.DateInactive = args.DateInactive;
 
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<EF.User>> Find(EF.User args)
         {
-            return await context.User
+            return await unitOfWork.UserRepository.Entities
             .Include(x => x.Role)
             .Where(x => x.FirstName.Contains(args.FirstName ?? x.FirstName) 
             && x.LastName.Contains(args.LastName ?? x.LastName) 
@@ -117,7 +117,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.User> Get(EF.User args)
         {
-            var rec = await context.User.Include(x => x.Role).FirstOrDefaultAsync(x => x.UserId == (args.UserId == 0 ? x.UserId : args.UserId)
+            var rec = await unitOfWork.UserRepository.Entities.Include(x => x.Role).FirstOrDefaultAsync(x => x.UserId == (args.UserId == 0 ? x.UserId : args.UserId)
             && x.Email == (args.Email ?? x.Email));
 
             return rec;

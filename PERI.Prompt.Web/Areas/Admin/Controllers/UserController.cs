@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,12 +15,19 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class UserController : BLL.BaseController
     {
+
+        private readonly IUnitOfWork unitOfWork;
+
+        public UserController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         public async Task<IActionResult> Index()
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "Users";
-            ViewBag.Data = await new BLL.User(context).Find(new EF.User());
+            ViewBag.Data = await new BLL.User(unitOfWork).Find(new EF.User());
             return View();
         }
 
@@ -27,9 +35,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EF.User args)
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "Users";
-            ViewBag.Data = await new BLL.User(context).Find(args);
+            ViewBag.Data = await new BLL.User(unitOfWork).Find(args);
             return View();
         }
 
@@ -49,15 +56,13 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                 if (!ModelState.IsValid)
                     return View();
 
-                var context = new EF.SampleDbContext();
-
                 // Add user
                 args.DateCreated = DateTime.Now;
 
                 if (!isactive)
                     args.DateInactive = DateTime.Now;
 
-                await new BLL.User(context).Add(args);
+                await new BLL.User(unitOfWork).Add(args);
                 
                 return Redirect("~/Admin/User");
             }
@@ -74,9 +79,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var context = new EF.SampleDbContext();
             ViewData["Title"] = "User/Edit";
-            var rec = await new BLL.User(context).Get(new EF.User { UserId = id });
+            var rec = await new BLL.User(unitOfWork).Get(new EF.User { UserId = id });
             return View(new Tuple<EF.User, bool>(rec, rec.DateInactive == null));
         }
 
@@ -89,13 +93,11 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                 if (!ModelState.IsValid)
                     return View();
 
-                var context = new EF.SampleDbContext();
-
                 // Edit user
                 if (!isactive)
                     args.DateInactive = DateTime.Now;
 
-                await new BLL.User(context).Edit(args);
+                await new BLL.User(unitOfWork).Edit(args);
 
                 return Redirect("~/Admin/User");
             }
@@ -113,9 +115,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var buser = new BLL.User(context);
+            var buser = new BLL.User(unitOfWork);
             
             await buser.Delete(ids);
 
@@ -125,9 +125,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Activate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var buser = new BLL.User(context);
+            var buser = new BLL.User(unitOfWork);
 
             await buser.Activate(ids);
 
@@ -137,9 +135,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Deactivate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var buser = new BLL.User(context);
+            var buser = new BLL.User(unitOfWork);
 
             await buser.Deactivate(ids);
 

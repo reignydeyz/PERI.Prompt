@@ -9,11 +9,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class BlogPhoto : ISampleData<EF.BlogPhoto>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BlogPhoto(EF.SampleDbContext dbcontext)
+        public BlogPhoto(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -23,8 +23,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.BlogPhoto args)
         {
-            context.BlogPhoto.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.BlogPhotoRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.BlogId;
         }
 
@@ -50,7 +50,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.BlogPhoto args)
         {
-            var bp = context.BlogPhoto.FirstOrDefault(x => x.BlogId == args.BlogId && x.PhotoId == args.PhotoId);
+            var bp = unitOfWork.BlogPhotoRepository.Entities.FirstOrDefault(x => x.BlogId == args.BlogId && x.PhotoId == args.PhotoId);
 
             if (bp == null)
             {
@@ -60,7 +60,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogPhoto>> Find(EF.BlogPhoto args)
         {
-            var res = await context.BlogPhoto.Where(x => x.BlogId == args.BlogId || args.PhotoId == args.PhotoId).ToListAsync();
+            var res = await unitOfWork.BlogPhotoRepository.Entities.Where(x => x.BlogId == args.BlogId || args.PhotoId == args.PhotoId).ToListAsync();
 
             return res;
         }
@@ -72,7 +72,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogPhoto>> Get(int[] ids)
         {
-            var res = await context.BlogPhoto.Where(x => ids.Contains(x.BlogId)).ToListAsync();
+            var res = await unitOfWork.BlogPhotoRepository.Entities.Where(x => ids.Contains(x.BlogId)).ToListAsync();
 
             return res;
         }

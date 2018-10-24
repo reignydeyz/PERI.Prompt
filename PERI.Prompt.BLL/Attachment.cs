@@ -13,7 +13,12 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Attachment : ISampleData<EF.Attachment>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
+
+        public Attachment(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
 
         /// <summary>
         /// Adds and uploads the file to the upload folder
@@ -29,8 +34,8 @@ namespace PERI.Prompt.BLL
             {
                 Url = "uploads/" + guid + "/" + file.FileName
             };
-            await context.Attachment.AddAsync(attachment);
-            await context.SaveChangesAsync();
+            await unitOfWork.AttachmentRepository.AddAsync(attachment);
+            await unitOfWork.CommitAsync();
 
             // Upload                
             if (file.Length > 0)
@@ -49,7 +54,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int id, IHostingEnvironment environment)
         {
-            var attachment = context.Attachment.First(x => x.AttachmentId == id);
+            var attachment = unitOfWork.AttachmentRepository.Entities.First(x => x.AttachmentId == id);
 
             // https://stackoverflow.com/questions/1616353/how-can-i-get-a-directory-from-a-uri
             Uri baseAddress = new Uri(Path.Combine(environment.WebRootPath, attachment.Url));
@@ -59,13 +64,8 @@ namespace PERI.Prompt.BLL
             // Remove the attachment physical file
             await Task.Run(() => Directory.Delete(directory.OriginalString, true));
 
-            context.Attachment.Remove(attachment);
-            await context.SaveChangesAsync();
-        }
-
-        public Attachment(EF.SampleDbContext dbcontext)
-        {
-            context = dbcontext;
+            unitOfWork.AttachmentRepository.Remove(attachment);
+            await unitOfWork.CommitAsync();
         }
 
         public Task Activate(int[] ids)
@@ -115,7 +115,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids, IHostingEnvironment environment)
         {
-            var res = context.Attachment.Where(x => ids.Contains(x.AttachmentId));
+            var res = unitOfWork.AttachmentRepository.Entities.Where(x => ids.Contains(x.AttachmentId));
 
             // Remove the attachments
             foreach (var p in res)
@@ -129,8 +129,8 @@ namespace PERI.Prompt.BLL
                 await Task.Run(() => Directory.Delete(directory.OriginalString, true));
             }
 
-            context.Attachment.RemoveRange(res);
-            await context.SaveChangesAsync();
+            unitOfWork.AttachmentRepository.RemoveRange(res);
+            await unitOfWork.CommitAsync();
         }
     }
 }

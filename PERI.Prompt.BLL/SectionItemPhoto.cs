@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class SectionItemPhoto : ISampleData<EF.SectionItemPhoto>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public SectionItemPhoto(EF.SampleDbContext dbcontext)
+        public SectionItemPhoto(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.SectionItemPhoto args)
         {
-            context.SectionItemPhoto.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.SectionItemPhotoRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return 0;
         }
 
@@ -52,7 +52,7 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.SectionItemPhoto args)
         {
-            var sip = context.SectionItemPhoto.FirstOrDefault(x => x.SectionItemId == args.SectionItemId && x.PhotoId == args.PhotoId);
+            var sip = unitOfWork.SectionItemPhotoRepository.Entities.FirstOrDefault(x => x.SectionItemId == args.SectionItemId && x.PhotoId == args.PhotoId);
 
             if (sip == null)
             {
@@ -62,7 +62,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.SectionItemPhoto>> Find(EF.SectionItemPhoto args)
         {
-            var res = await context.SectionItemPhoto.Where(x => x.SectionItemId == args.SectionItemId).ToListAsync();
+            var res = await unitOfWork.SectionItemPhotoRepository.Entities.Where(x => x.SectionItemId == args.SectionItemId).ToListAsync();
 
             return res;
         }
@@ -74,7 +74,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.SectionItemPhoto>> Get(int[] ids)
         {
-            var res = await context.SectionItemPhoto.Where(x => ids.Contains(x.SectionItemId)).ToListAsync();
+            var res = await unitOfWork.SectionItemPhotoRepository.Entities.Where(x => ids.Contains(x.SectionItemId)).ToListAsync();
 
             return res;
         }

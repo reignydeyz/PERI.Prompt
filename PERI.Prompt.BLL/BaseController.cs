@@ -17,11 +17,10 @@ namespace PERI.Prompt.BLL
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            using (var context = new EF.SampleDbContext())
-            {
-                ViewBag.Settings = new Setting(context).Find(new EF.Setting()).Result;
-                base.OnActionExecuting(filterContext);
-            }                
+            var unitOfWork = new UnitOfWork(new EF.SampleDbContext());
+            
+            ViewBag.Settings = new Setting(unitOfWork).Find(new EF.Setting()).Result;
+            base.OnActionExecuting(filterContext);
         }
     }
 }

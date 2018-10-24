@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using PERI.Prompt.BLL;
 
 namespace PERI.Prompt.Web.Areas.Main.Controllers
 {
@@ -14,9 +15,11 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class EventController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly IHostingEnvironment _environment;
-        public EventController(IHostingEnvironment environment)
+        public EventController(IHostingEnvironment environment, IUnitOfWork unitOfWork)
         {
+            this.unitOfWork = unitOfWork;
             _environment = environment;
         }
 
@@ -24,9 +27,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Events";
 
-            var context = new EF.SampleDbContext();
-
-            ViewBag.Data = await new BLL.Event(context).Find(new EF.Event());
+            ViewBag.Data = await new BLL.Event(unitOfWork).Find(new EF.Event());
             return View();
         }
 
@@ -35,8 +36,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public async Task<IActionResult> Index(EF.Event args)
         {
             ViewData["Title"] = "Events";
-            var context = new EF.SampleDbContext();
-            ViewBag.Data = await new BLL.Event(context).Find(args);
+            ViewBag.Data = await new BLL.Event(unitOfWork).Find(args);
             return View();
         }
 
@@ -53,11 +53,9 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Event/New";
 
-            var context = new EF.SampleDbContext();
-
             model.CreatedBy = User.Identity.Name;
 
-            var bevent = new BLL.Event(context);
+            var bevent = new BLL.Event(unitOfWork);
 
             // Add Event
             if (!isactive)
@@ -71,12 +69,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             IFormFile uploadedImage = file;
             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
             {
-                var pid = await new BLL.Photo(context).Add(_environment, file);
+                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                 var ep = new EF.EventPhoto();
                 ep.EventId = id;
                 ep.PhotoId = pid;
-                await new BLL.EventPhoto(context).Add(ep);
+                await new BLL.EventPhoto(unitOfWork).Add(ep);
             }
 
             return Redirect("~/Main/Event");
@@ -86,9 +84,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Event/Edit";
 
-            var context = new EF.SampleDbContext();
-
-            var obj = await (new BLL.Event(context).GetModel(id));
+            var obj = await (new BLL.Event(unitOfWork).GetModel(id));
             return View(obj);
         }
 
@@ -98,11 +94,9 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Event/Edit";
 
-            var context = new EF.SampleDbContext();
-
             model.ModifiedBy = User.Identity.Name;
 
-            var bevent = new BLL.Event(context);
+            var bevent = new BLL.Event(unitOfWork);
 
             // Update Event
             if (!isactive)
@@ -116,12 +110,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
             IFormFile uploadedImage = file;
             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
             {
-                var beventphoto = new BLL.EventPhoto(context);
+                var beventphoto = new BLL.EventPhoto(unitOfWork);
                 var eventphotos = await beventphoto.Find(new EF.EventPhoto { EventId = model.EventId });
                 if (eventphotos.Count() > 0)
-                    await new BLL.Photo(context).Delete(eventphotos.First().PhotoId, _environment);
+                    await new BLL.Photo(unitOfWork).Delete(eventphotos.First().PhotoId, _environment);
 
-                var pid = await new BLL.Photo(context).Add(_environment, file);
+                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                 var ep = new EF.EventPhoto();
                 ep.EventId = model.EventId;
@@ -135,14 +129,12 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bevent = new BLL.Event(context);
+            var bevent = new BLL.Event(unitOfWork);
 
             // Delete photos
-            var eventphotos = await new BLL.EventPhoto(context).Get(ids);
+            var eventphotos = await new BLL.EventPhoto(unitOfWork).Get(ids);
             if (eventphotos.Count() > 0)
-                await new BLL.Photo(context).Delete(eventphotos.Select(x => x.PhotoId).ToArray(), _environment);
+                await new BLL.Photo(unitOfWork).Delete(eventphotos.Select(x => x.PhotoId).ToArray(), _environment);
 
             await bevent.Delete(ids);
 
@@ -152,9 +144,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Activate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bevent = new BLL.Event(context);
+            var bevent = new BLL.Event(unitOfWork);
 
             await bevent.Activate(ids);
 
@@ -164,9 +154,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Deactivate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bevent = new BLL.Event(context);
+            var bevent = new BLL.Event(unitOfWork);
 
             await bevent.Deactivate(ids);
 

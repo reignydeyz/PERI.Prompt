@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Section : ISampleData<EF.Section>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Section(EF.SampleDbContext dbcontext)
+        public Section(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -55,7 +55,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Section>> Find(EF.Section args)
         {
-            var res = await context.Section
+            var res = await unitOfWork.SectionRepository.Entities
                 .Where(x => x.TemplateId == args.TemplateId
                 && x.Name.Contains(args.Name ?? string.Empty))
                 .Include(x => x.Template)
@@ -66,7 +66,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Section> Get(EF.Section args)
         {
-            var rec = await context.Section
+            var rec = await unitOfWork.SectionRepository.Entities
                 .Include(x => x.Template)
                 .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemProperty)
                 .FirstOrDefaultAsync(x => x.SectionId == args.SectionId);

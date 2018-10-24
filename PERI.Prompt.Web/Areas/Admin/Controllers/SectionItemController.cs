@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,18 +18,18 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class SectionItemController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly IHostingEnvironment _environment;
-        public SectionItemController(IHostingEnvironment environment)
+        public SectionItemController(IUnitOfWork unitOfWork, IHostingEnvironment environment)
         {
+            this.unitOfWork = unitOfWork;
             _environment = environment;
         }
 
         [Route("Section/{id:int}/Items")]
         public async Task<IActionResult> Index(int id)
         {
-            var context = new EF.SampleDbContext();
-
-            var section = await new BLL.Section(context).Get(new EF.Section { SectionId = id });
+            var section = await new BLL.Section(unitOfWork).Get(new EF.Section { SectionId = id });
 
             ViewData["Title"] = "Section/" + section.Name;
 
@@ -41,13 +42,11 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items")]
         public async Task<IActionResult> Index([Bind(Prefix = "Item1")] EF.SectionItem args, int id)
         {
-            var context = new EF.SampleDbContext();
-
-            var section = await new BLL.Section(context).Get(new EF.Section { SectionId = id });
+            var section = await new BLL.Section(unitOfWork).Get(new EF.Section { SectionId = id });
 
             ViewData["Title"] = "Section/" + section.Name;
 
-            var items = await new BLL.SectionItem(context).Find(args);
+            var items = await new BLL.SectionItem(unitOfWork).Find(args);
 
             var tuple = new Tuple<EF.SectionItem, List<EF.SectionItem>>(args, items.ToList());
 
@@ -61,9 +60,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             try
             {
-                var context = new EF.SampleDbContext();
                 foreach (var rec in args)
-                    await new BLL.SectionItem(context).Edit(rec);
+                    await new BLL.SectionItem(unitOfWork).Edit(rec);
             }
             catch (DbUpdateException ex)
             {
@@ -76,13 +74,11 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items/New")]
         public async Task<IActionResult> New(int id)
         {
-            var context = new EF.SampleDbContext();
-
-            var section = await new BLL.Section(context).Get(new EF.Section { SectionId = id });
+            var section = await new BLL.Section(unitOfWork).Get(new EF.Section { SectionId = id });
             ViewData["Title"] = "Section/" + section.Name + "/Items/New";
 
             var props = new List<EF.SectionItemProperty>();
-            var list = await new BLL.SectionProperty(context).Find(new EF.SectionProperty { SectionId = id });
+            var list = await new BLL.SectionProperty(unitOfWork).Find(new EF.SectionProperty { SectionId = id });
 
             foreach (var rec in list)
             {
@@ -107,25 +103,23 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items/New")]
         public async Task<IActionResult> New([Bind(Prefix = "Item1")] EF.SectionItem args, [Bind(Prefix = "Item2")] List<EF.SectionItemProperty> props, IFormFile file, int id)
         {
-            var context = new EF.SampleDbContext();
-
             // Add SectionItem
             args.CreatedBy = User.Identity.Name;
             args.DateCreated = DateTime.Now;
             args.ModifiedBy = args.CreatedBy;
             args.DateModified = args.DateCreated;
             args.SectionId = id;
-            var siId = await new BLL.SectionItem(context).Add(args);
+            var siId = await new BLL.SectionItem(unitOfWork).Add(args);
             
             IFormFile uploadedImage = file;
             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
             {
-                var pid = await new BLL.Photo(context).Add(_environment, file);
+                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                 var siph = new EF.SectionItemPhoto();
                 siph.PhotoId = pid;
                 siph.SectionItemId = siId;
-                await new BLL.SectionItemPhoto(context).Add(siph);
+                await new BLL.SectionItemPhoto(unitOfWork).Add(siph);
             }
 
             foreach (var rec in props)
@@ -137,7 +131,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                     sipr.SectionItemId = siId;
                     sipr.SectionPropertyId = rec.SectionPropertyId;
                     sipr.Value = rec.Value;
-                    await new BLL.SectionItemProperty(context).Add(sipr);
+                    await new BLL.SectionItemProperty(unitOfWork).Add(sipr);
                 }
             }
 
@@ -147,16 +141,14 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items/{id1:int}/Edit")]
         public async Task<IActionResult> Edit(int id, int id1)
         {
-            var context = new EF.SampleDbContext();
-
-            var si = await new BLL.SectionItem(context).Get(new EF.SectionItem { SectionItemId = id1 });
+            var si = await new BLL.SectionItem(unitOfWork).Get(new EF.SectionItem { SectionItemId = id1 });
             ViewData["Title"] = "Section/" + si.Section.Name + "/Items/" + id1 + "/Edit";
 
             List<EF.SectionItemProperty> props = new List<EF.SectionItemProperty>();
-            var list = await new BLL.SectionProperty(context).Find(new EF.SectionProperty { SectionId = id });
+            var list = await new BLL.SectionProperty(unitOfWork).Find(new EF.SectionProperty { SectionId = id });
             foreach (var rec in list)
             {
-                var sip = await new BLL.SectionItemProperty(context).Get(new EF.SectionItemProperty { SectionPropertyId = rec.SectionPropertyId, SectionItemId = id1 });
+                var sip = await new BLL.SectionItemProperty(unitOfWork).Get(new EF.SectionItemProperty { SectionPropertyId = rec.SectionPropertyId, SectionItemId = id1 });
                 if (sip != null)
                     props.Add(sip);
                 else
@@ -173,8 +165,6 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items/{id1:int}/Edit")]
         public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.SectionItem args, [Bind(Prefix = "Item2")] List<EF.SectionItemProperty> props, IFormFile file, int id, int id1)
         {
-            var context = new EF.SampleDbContext();
-
             var si = new EF.SectionItem
             {
                 SectionItemId = id1,
@@ -186,18 +176,18 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                 DateModified = DateTime.Now
             };
 
-            await new BLL.SectionItem(context).Edit(si);
+            await new BLL.SectionItem(unitOfWork).Edit(si);
 
             // Update Photo
             IFormFile uploadedImage = file;
             if (uploadedImage != null && uploadedImage.ContentType.ToLower().StartsWith("image/"))
             {
-                var bsectionitemphoto = new BLL.SectionItemPhoto(context);
+                var bsectionitemphoto = new BLL.SectionItemPhoto(unitOfWork);
                 var bsectionitemphotos = await bsectionitemphoto.Find(new EF.SectionItemPhoto { SectionItemId = args.SectionItemId });
                 if (bsectionitemphotos.Count() > 0)
-                    await new BLL.Photo(context).Delete(bsectionitemphotos.First().PhotoId, _environment);
+                    await new BLL.Photo(unitOfWork).Delete(bsectionitemphotos.First().PhotoId, _environment);
 
-                var pid = await new BLL.Photo(context).Add(_environment, file);
+                var pid = await new BLL.Photo(unitOfWork).Add(_environment, file);
 
                 var sip = new EF.SectionItemPhoto();
                 sip.SectionItemId = id1;
@@ -219,7 +209,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                             SectionPropertyId = rec.SectionPropertyId,
                             Value = rec.Value
                         };
-                        await new BLL.SectionItemProperty(context).Edit(sipr);
+                        await new BLL.SectionItemProperty(unitOfWork).Edit(sipr);
                     }
                     else
                     {
@@ -228,13 +218,13 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
                         sipr.SectionItemId = args.SectionItemId;
                         sipr.SectionPropertyId = rec.SectionPropertyId;
                         sipr.Value = rec.Value;
-                        await new BLL.SectionItemProperty(context).Add(sipr);
+                        await new BLL.SectionItemProperty(unitOfWork).Add(sipr);
                     }
                 }
                 else
                 {
                     // Delete SectionItemProperty
-                    var bsip = new BLL.SectionItemProperty(context);
+                    var bsip = new BLL.SectionItemProperty(unitOfWork);
 
                     var sipr = await bsip.Get(new EF.SectionItemProperty { SectionItemId = args.SectionItemId, SectionPropertyId = rec.SectionPropertyId });
 
@@ -250,14 +240,12 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Section/{id:int}/Items/Delete")]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bsectionitem = new BLL.SectionItem(context);
+            var bsectionitem = new BLL.SectionItem(unitOfWork);
 
             // Delete photos
-            var siphotos = await new BLL.SectionItemPhoto(context).Get(ids);
+            var siphotos = await new BLL.SectionItemPhoto(unitOfWork).Get(ids);
             if (siphotos.Count() > 0)
-                await new BLL.Photo(context).Delete(siphotos.Select(x => x.PhotoId).ToArray(), _environment);
+                await new BLL.Photo(unitOfWork).Delete(siphotos.Select(x => x.PhotoId).ToArray(), _environment);
 
             await bsectionitem.Delete(ids);
 

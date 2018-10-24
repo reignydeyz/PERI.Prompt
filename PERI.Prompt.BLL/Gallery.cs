@@ -9,11 +9,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Gallery : ISampleData<EF.Gallery>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Gallery(EF.SampleDbContext dbcontext)
+        public Gallery(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -53,7 +53,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Gallery>> Find(EF.Gallery args)
         {
-            var res = await (from c in context.Gallery
+            var res = await (from c in unitOfWork.GalleryRepository.Entities
                         .Include(x => x.GalleryPhoto).ThenInclude(x => x.Photo)
                         where c.Name.Contains(args.Name ?? string.Empty)
                         && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
@@ -64,7 +64,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Gallery> Get(EF.Gallery args)
         {
-            var rec = await context.Gallery
+            var rec = await unitOfWork.GalleryRepository.Entities
                 .Include(x => x.GalleryPhoto).ThenInclude(x => x.Photo)
                 .FirstOrDefaultAsync(x => x.GalleryId == args.GalleryId);
 

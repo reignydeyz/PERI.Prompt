@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,14 +16,19 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class CategoryController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public CategoryController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         public async Task<IActionResult> Index()
         {
             ViewData["Title"] = "Categories";
-
-            var context = new EF.SampleDbContext();
-
-            ViewBag.Data = await new BLL.Category(context).Find(new EF.Category());
+            
+            ViewBag.Data = await new BLL.Category(unitOfWork).Find(new EF.Category());
             return View();
         }
 
@@ -31,8 +37,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public async Task<IActionResult> Index(EF.Category args)
         {
             ViewData["Title"] = "Categories";
-            var context = new EF.SampleDbContext();
-            ViewBag.Data = await new BLL.Category(context).Find(args);
+            ViewBag.Data = await new BLL.Category(unitOfWork).Find(args);
             return View();
         }
 
@@ -40,10 +45,8 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public async Task<IActionResult> New()
         {
             ViewData["Title"] = "Category/New";
-
-            var context = new EF.SampleDbContext();
-
-            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(new EF.SampleDbContext()).Find(new EF.BlogSortOrder())).ToList();
+            
+            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(unitOfWork).Find(new EF.BlogSortOrder())).ToList();
 
             var obj = new Tuple<EF.Category, bool>(new EF.Category(), true);
             return View(obj);
@@ -56,8 +59,6 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Category/New";
 
-            var context = new EF.SampleDbContext();
-
             try
             {
                 model.CreatedBy = User.Identity.Name;
@@ -65,7 +66,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                 if (!isactive)
                     model.DateInactive = DateTime.Now;
 
-                await new BLL.Category(context).Add(model);
+                await new BLL.Category(unitOfWork).Add(model);
                 return Redirect("~/Main/Category");
             }
             catch (DbUpdateException ex)
@@ -77,7 +78,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(new EF.SampleDbContext()).Find(new EF.BlogSortOrder())).ToList();
+            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(unitOfWork).Find(new EF.BlogSortOrder())).ToList();
 
             var obj = new Tuple<EF.Category, bool>(model, isactive);
 
@@ -89,11 +90,9 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Category/Edit";
 
-            var context = new EF.SampleDbContext();
+            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(unitOfWork).Find(new EF.BlogSortOrder())).ToList();
 
-            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(new EF.SampleDbContext()).Find(new EF.BlogSortOrder())).ToList();
-
-            var obj = await new BLL.Category(context).GetModel(id);
+            var obj = await new BLL.Category(unitOfWork).GetModel(id);
             return View(obj);
         }
 
@@ -103,9 +102,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         public async Task<IActionResult> Edit([Bind(Prefix = "Item1")] EF.Category model, [Bind(Prefix = "Item2")] bool isactive)
         {
             ViewData["Title"] = "Category/Edit";
-
-            var context = new EF.SampleDbContext();
-
+            
             try
             {
                 model.ModifiedBy = User.Identity.Name;
@@ -113,7 +110,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                 if (!isactive)
                     model.DateInactive = DateTime.Now;
 
-                await new BLL.Category(context).Edit(model);
+                await new BLL.Category(unitOfWork).Edit(model);
                 return Redirect("~/Main/Category");
             }
             catch (DbUpdateException ex)
@@ -125,7 +122,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(new EF.SampleDbContext()).Find(new EF.BlogSortOrder())).ToList();
+            ViewBag.BlogSortOrders = (await new BLL.BlogSortOrder(unitOfWork).Find(new EF.BlogSortOrder())).ToList();
 
             var obj = new Tuple<EF.Category, bool>(model, isactive);
 
@@ -136,9 +133,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bcategory = new BLL.Category(context);            
+            var bcategory = new BLL.Category(unitOfWork);            
 
             await bcategory.Delete(ids);
 
@@ -149,9 +144,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Activate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bcategory = new BLL.Category(context);
+            var bcategory = new BLL.Category(unitOfWork);
 
             await bcategory.Activate(ids);
 
@@ -162,9 +155,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         [HttpPost]
         public async Task<IActionResult> Deactivate([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            var bcategory = new BLL.Category(context);
+            var bcategory = new BLL.Category(unitOfWork);
 
             await bcategory.Deactivate(ids);
 

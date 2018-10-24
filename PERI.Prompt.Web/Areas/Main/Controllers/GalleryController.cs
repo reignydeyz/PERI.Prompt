@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,9 +16,11 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class GalleryController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
         private readonly IHostingEnvironment _environment;
-        public GalleryController(IHostingEnvironment environment)
+        public GalleryController(IHostingEnvironment environment, IUnitOfWork unitOfWork)
         {
+            this.unitOfWork = unitOfWork;
             _environment = environment;
         }
 
@@ -26,9 +29,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             ViewData["Title"] = "Galleries";
 
-            var context = new EF.SampleDbContext();
-
-            ViewBag.Data = await new BLL.Gallery(context).Find(new EF.Gallery());
+            ViewBag.Data = await new BLL.Gallery(unitOfWork).Find(new EF.Gallery());
             return View();
         }
 
@@ -38,9 +39,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             ViewData["Title"] = "Galleries";
 
-            var context = new EF.SampleDbContext();
-
-            ViewBag.Data = await new BLL.Gallery(context).Find(args);
+            ViewBag.Data = await new BLL.Gallery(unitOfWork).Find(args);
             return View();
         }
     }

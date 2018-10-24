@@ -10,11 +10,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Tag : ISampleData<EF.Tag>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Tag(EF.SampleDbContext dbcontext)
+        public Tag(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -24,12 +24,12 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.Tag args)
         {
-            var rec = context.Tag.FirstOrDefault(x => x.Name == args.Name);
+            var rec = unitOfWork.TagRepository.Entities.FirstOrDefault(x => x.Name == args.Name);
 
             if (rec == null)
             {                    
-                context.Tag.Add(args);
-                await context.SaveChangesAsync();
+                unitOfWork.TagRepository.Add(args);
+                await unitOfWork.CommitAsync();
                 return args.TagId;
             }
             else

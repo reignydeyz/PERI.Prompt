@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,13 +16,18 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class MenuItemController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public MenuItemController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         [Route("Menu/{id:int}/Items")]
         public async Task<IActionResult> Index(int id)
         {
-            var context = new EF.SampleDbContext();
-
-            var menu = await new BLL.Menu(context).Get(new EF.Menu { MenuId = id });
+            var menu = await new BLL.Menu(unitOfWork).Get(new EF.Menu { MenuId = id });
 
             ViewData["Title"] = "Menu/" + menu.Name;
 
@@ -37,7 +43,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             try
             {
-                await new BLL.MenuItem(new EF.SampleDbContext()).Add(args);
+                await new BLL.MenuItem(unitOfWork).Add(args);
             }
             catch (DbUpdateException ex)
             {
@@ -54,9 +60,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             try
             {
-                var context = new EF.SampleDbContext();
                 foreach (var rec in args)
-                    await new BLL.MenuItem(context).Edit(rec);
+                    await new BLL.MenuItem(unitOfWork).Edit(rec);
             }
             catch (DbUpdateException ex)
             {
@@ -70,9 +75,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Menu/{id:int}/Items/Delete")]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            await new BLL.MenuItem(context).Delete(ids);
+            await new BLL.MenuItem(unitOfWork).Delete(ids);
 
             return Json("Success!");
         }

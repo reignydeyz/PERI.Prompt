@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PERI.Prompt.Core", "PERI.Pr
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "PERI.Prompt.DB", "PERI.Prompt.DB\PERI.Prompt.DB.sqlproj", "{A1A20DEF-E890-4728-82B8-33272924C0E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PERI.Prompt.Repository", "PERI.Prompt.Repository\PERI.Prompt.Repository.csproj", "{FB8CA636-D61E-46F7-A8DA-AD699DC158CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1A20DEF-E890-4728-82B8-33272924C0E4}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FB8CA636-D61E-46F7-A8DA-AD699DC158CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB8CA636-D61E-46F7-A8DA-AD699DC158CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB8CA636-D61E-46F7-A8DA-AD699DC158CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB8CA636-D61E-46F7-A8DA-AD699DC158CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

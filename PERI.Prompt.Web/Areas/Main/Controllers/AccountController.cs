@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,6 +16,13 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class AccountController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public AccountController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         [HttpGet]
         public IActionResult ChangePassword()
@@ -29,12 +37,10 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
         {
             ViewData["Title"] = "Change Password";
 
-            var context = new EF.SampleDbContext();
-
             if (!ModelState.IsValid)
                 return View();
 
-            var buser = new BLL.User(context);
+            var buser = new BLL.User(unitOfWork);
 
             var user = await buser.Get(new EF.User { UserId = Convert.ToInt16(((ClaimsIdentity)User.Identity).FindFirst(ClaimTypes.UserData).Value) });
 

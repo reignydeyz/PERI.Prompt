@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,13 +16,18 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
     [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class ChildMenuItemController : BLL.BaseController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public ChildMenuItemController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         [Route("Menu/{id:int}/Items/{id1:int}/Children")]
         public async Task<IActionResult> Index(int id, int id1)
         {
-            var context = new EF.SampleDbContext();
-
-            var menuitem = await new BLL.MenuItem(context).Get(new EF.MenuItem { MenuItemId = id1 });
+            var menuitem = await new BLL.MenuItem(unitOfWork).Get(new EF.MenuItem { MenuItemId = id1 });
 
             ViewData["Title"] = "Menu/" + menuitem.Menu.Name + "/" + menuitem.Label;
 
@@ -37,7 +43,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             try
             {
-                await new BLL.ChildMenuItem(new EF.SampleDbContext()).Add(args);
+                await new BLL.ChildMenuItem(unitOfWork).Add(args);
             }
             catch (DbUpdateException ex)
             {
@@ -54,9 +60,8 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         {
             try
             {
-                var context = new EF.SampleDbContext();
                 foreach (var rec in args)
-                    await new BLL.ChildMenuItem(context).Edit(rec);
+                    await new BLL.ChildMenuItem(unitOfWork).Edit(rec);
             }
             catch (DbUpdateException ex)
             {
@@ -70,9 +75,7 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
         [Route("Menu/{id:int}/Items/{id1:int}/Children/Delete")]
         public async Task<IActionResult> Delete([FromBody] int[] ids)
         {
-            var context = new EF.SampleDbContext();
-
-            await new BLL.ChildMenuItem(context).Delete(ids);
+            await new BLL.ChildMenuItem(unitOfWork).Delete(ids);
 
             return Json("Success!");
         }

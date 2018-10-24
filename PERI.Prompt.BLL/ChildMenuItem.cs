@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class ChildMenuItem : ISampleData<EF.ChildMenuItem>
     {
-        EF.SampleDbContext context;
+        private IUnitOfWork unitOfWork;
 
-        public ChildMenuItem(EF.SampleDbContext dbcontext)
+        public ChildMenuItem(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.ChildMenuItem args)
         {
-            await context.ChildMenuItem.AddAsync(args);
-            await context.SaveChangesAsync();
+            await unitOfWork.ChildMenuItemRepository.AddAsync(args);
+            await unitOfWork.CommitAsync();
 
             return args.ChildMenuItemId;
         }
@@ -43,8 +43,8 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids)
         {
-            context.ChildMenuItem.RemoveRange(context.ChildMenuItem.Where(x => ids.Contains(x.ChildMenuItemId)));
-            await context.SaveChangesAsync();
+            unitOfWork.ChildMenuItemRepository.RemoveRange(unitOfWork.ChildMenuItemRepository.Entities.Where(x => ids.Contains(x.ChildMenuItemId)));
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(EF.ChildMenuItem args)
@@ -54,11 +54,11 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.ChildMenuItem args)
         {
-            var rec = await context.ChildMenuItem.FirstAsync(x => x.ChildMenuItemId == args.ChildMenuItemId);
+            var rec = await unitOfWork.ChildMenuItemRepository.Entities.FirstAsync(x => x.ChildMenuItemId == args.ChildMenuItemId);
             rec.Label = args.Label;
             rec.Url = args.Url;
             rec.Order = args.Order;
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public Task<IEnumerable<EF.ChildMenuItem>> Find(EF.ChildMenuItem args)

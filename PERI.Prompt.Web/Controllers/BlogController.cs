@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PERI.Prompt.BLL;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,6 +11,13 @@ namespace PERI.Prompt.Web.Controllers
 {
     public class BlogController : BLL.BaseTemplateController
     {
+        private readonly IUnitOfWork unitOfWork;
+
+        public BlogController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+
         // GET: /<controller>/
         /// <summary>
         /// Views the whole content of the Blog
@@ -20,9 +28,7 @@ namespace PERI.Prompt.Web.Controllers
         [Route("Category/{categoryName}/Blog/{blogId:int}")]
         public async Task<IActionResult> Index(string categoryName, int blogId)
         {
-            var context = new EF.SampleDbContext();
-
-            var obj = await new BLL.Blog(context).Get(new EF.Blog { BlogId = blogId });
+            var obj = await new BLL.Blog(unitOfWork).Get(new EF.Blog { BlogId = blogId });
 
             ViewData["Title"] = obj.Title;
 
@@ -42,16 +48,14 @@ namespace PERI.Prompt.Web.Controllers
         {
             ViewData["Title"] = categoryName;
 
-            var context = new EF.SampleDbContext();
-
-            var category = await new BLL.Category(context).Get(new EF.Category { Name = categoryName });
+            var category = await new BLL.Category(unitOfWork).Get(new EF.Category { Name = categoryName });
 
             if (category == null)
                 return StatusCode(404);
             else if (category.DateInactive != null)
                 return StatusCode(403);
 
-            var blogs = (await new BLL.Blog(context).FindByCategoryId(category.CategoryId)).Where(x => x.DateInactive == null);
+            var blogs = (await new BLL.Blog(unitOfWork).FindByCategoryId(category.CategoryId)).Where(x => x.DateInactive == null);
 
             var page = Convert.ToInt16(Request.Query["page"]);
             var pager = new Core.Pager(blogs.Count(), page == 0 ? 1 : page);
@@ -74,9 +78,8 @@ namespace PERI.Prompt.Web.Controllers
 
             if (Request.Cookies["preview_blog_photoId"] != "")
             {
-                var context = new EF.SampleDbContext();
                 var id = Convert.ToInt32(Request.Cookies["preview_blog_photoId"]);
-                var photo = await new BLL.Photo(context).Get(new EF.Photo { PhotoId = id });
+                var photo = await new BLL.Photo(unitOfWork).Get(new EF.Photo { PhotoId = id });
 
                 obj.BlogPhoto.Add(new EF.BlogPhoto {
                     Photo = photo

@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class SectionProperty : ISampleData<EF.SectionProperty>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public SectionProperty(EF.SampleDbContext dbcontext)
+        public SectionProperty(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -55,7 +55,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.SectionProperty>> Find(EF.SectionProperty args)
         {
-            var res = await (from r in context.SectionProperty
+            var res = await (from r in unitOfWork.SectionPropertyRepository.Entities
                         where r.SectionId == (args.SectionId == 0 ? r.SectionId : args.SectionId)
                         && r.Name.Contains(args.Name ?? string.Empty)
                         select r).ToListAsync();

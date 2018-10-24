@@ -9,11 +9,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class BlogSortOrder : ISampleData<EF.BlogSortOrder>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BlogSortOrder(EF.SampleDbContext dbcontext)
+        public BlogSortOrder(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -53,7 +53,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogSortOrder>> Find(EF.BlogSortOrder args)
         {
-            var res = await(from c in context.BlogSortOrder
+            var res = await(from c in unitOfWork.BlogSortOrderRepository.Entities
                             where c.Name.Contains(args.Name ?? string.Empty)
                             select c).ToListAsync();
 

@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class MenuItem : ISampleData<EF.MenuItem>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public MenuItem(EF.SampleDbContext dbcontext)
+        public MenuItem(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.MenuItem args)
         {
-            await context.MenuItem.AddAsync(args);
-            await context.SaveChangesAsync();
+            await unitOfWork.MenuItemRepository.AddAsync(args);
+            await unitOfWork.CommitAsync();
 
             return args.MenuItemId;
         }
@@ -43,8 +43,8 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(int[] ids)
         {
-            context.MenuItem.RemoveRange(context.MenuItem.Where(x => ids.Contains(x.MenuItemId)));
-            await context.SaveChangesAsync();
+            unitOfWork.MenuItemRepository.RemoveRange(unitOfWork.MenuItemRepository.Entities.Where(x => ids.Contains(x.MenuItemId)));
+            await unitOfWork.CommitAsync();
         }
 
         public Task Delete(EF.MenuItem args)
@@ -54,11 +54,11 @@ namespace PERI.Prompt.BLL
 
         public async Task Edit(EF.MenuItem args)
         {
-            var rec = await  context.MenuItem.FirstAsync(x => x.MenuItemId == args.MenuItemId);
+            var rec = await  unitOfWork.MenuItemRepository.Entities.FirstAsync(x => x.MenuItemId == args.MenuItemId);
             rec.Label = args.Label;
             rec.Url = args.Url;
             rec.Order = args.Order;
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public Task<IEnumerable<EF.MenuItem>> Find(EF.MenuItem args)
@@ -68,7 +68,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.MenuItem> Get(EF.MenuItem args)
         {
-            return await context.MenuItem
+            return await unitOfWork.MenuItemRepository.Entities
                 .Include(x => x.Menu)
                 .Include(x => x.ChildMenuItem)
                 .FirstOrDefaultAsync(x => x.MenuItemId == args.MenuItemId);

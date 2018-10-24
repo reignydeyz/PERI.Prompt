@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class BlogAttachment : ISampleData<EF.BlogAttachment>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public BlogAttachment(EF.SampleDbContext dbcontext)
+        public BlogAttachment(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.BlogAttachment args)
         {
-            context.BlogAttachment.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.BlogAttachmentRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return args.BlogId;
         }
 
@@ -67,7 +67,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.BlogAttachment>> Get(int[] ids)
         {
-            var res = await context.BlogAttachment.Where(x => ids.Contains(x.BlogId)).ToListAsync();
+            var res = await unitOfWork.BlogAttachmentRepository.Entities.Where(x => ids.Contains(x.BlogId)).ToListAsync();
 
             return res;
         }

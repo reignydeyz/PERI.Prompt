@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class SectionItemProperty : ISampleData<EF.SectionItemProperty>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public SectionItemProperty(EF.SampleDbContext dbcontext)
+        public SectionItemProperty(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -25,8 +25,8 @@ namespace PERI.Prompt.BLL
 
         public async Task<int> Add(EF.SectionItemProperty args)
         {
-            context.SectionItemProperty.Add(args);
-            await context.SaveChangesAsync();
+            unitOfWork.SectionItemPropertyRepository.Add(args);
+            await unitOfWork.CommitAsync();
             return 0;
         }
 
@@ -47,23 +47,23 @@ namespace PERI.Prompt.BLL
 
         public async Task Delete(EF.SectionItemProperty args)
         {
-            var rec = await context.SectionItemProperty.FirstAsync(x => x.SectionPropertyId == args.SectionPropertyId && x.SectionItemId == args.SectionItemId);
-            context.Remove(rec);
-            await context.SaveChangesAsync();
+            var rec = await unitOfWork.SectionItemPropertyRepository.Entities.FirstAsync(x => x.SectionPropertyId == args.SectionPropertyId && x.SectionItemId == args.SectionItemId);
+            unitOfWork.SectionItemPropertyRepository.Remove(rec);
+            await unitOfWork.CommitAsync();
         }
 
         public async Task Edit(EF.SectionItemProperty args)
         {
-            var rec = await context.SectionItemProperty.FirstAsync(x => x.SectionItemId == args.SectionItemId
+            var rec = await unitOfWork.SectionItemPropertyRepository.Entities.FirstAsync(x => x.SectionItemId == args.SectionItemId
             && x.SectionPropertyId == args.SectionPropertyId);
 
             rec.Value = args.Value;
-            await context.SaveChangesAsync();
+            await unitOfWork.CommitAsync();
         }
 
         public async Task<IEnumerable<EF.SectionItemProperty>> Find(EF.SectionItemProperty args)
         {
-            var res = await (from r in context.SectionItemProperty
+            var res = await (from r in unitOfWork.SectionItemPropertyRepository.Entities
                     .Include(x => x.SectionItem)
                     .Include(x => x.SectionProperty)
                         where r.SectionItem.SectionId == (args.SectionItem.SectionId == 0 ? r.SectionItem.SectionId : args.SectionItem.SectionId)
@@ -75,7 +75,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.SectionItemProperty> Get(EF.SectionItemProperty args)
         {
-            return await context.SectionItemProperty.FirstOrDefaultAsync(x => x.SectionItemId == args.SectionItemId
+            return await unitOfWork.SectionItemPropertyRepository.Entities.FirstOrDefaultAsync(x => x.SectionItemId == args.SectionItemId
             && x.SectionPropertyId == args.SectionPropertyId);
         }
     }

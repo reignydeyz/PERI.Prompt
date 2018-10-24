@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PERI.Prompt.Core\PERI.Prompt.Core.csproj" />
     <ProjectReference Include="..\PERI.Prompt.EF\PERI.Prompt.EF.csproj" />
+    <ProjectReference Include="..\PERI.Prompt.Repository\PERI.Prompt.Repository.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Role
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Role(EF.SampleDbContext dbcontext)
+        public Role(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace PERI.Prompt.BLL
             
             List<Core.DropDownList.Item> ddItem = new List<Core.DropDownList.Item>();
 
-            var qry = context.Role;
+            var qry = unitOfWork.RoleRepository.Entities;
 
             foreach (var obj in qry)
                 ddItem.Add(new Core.DropDownList.Item(obj.Name, obj.RoleId.ToString()));
@@ -38,7 +38,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Role> GetById(int id)
         {
-            return await context.Role.FirstAsync(x => x.RoleId == id);
+            return await unitOfWork.RoleRepository.Entities.FirstAsync(x => x.RoleId == id);
         }
     }
 }

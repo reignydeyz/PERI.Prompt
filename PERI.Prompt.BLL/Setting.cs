@@ -9,11 +9,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Setting : ISampleData<EF.Setting>
     {
-        EF.SampleDbContext context;
+        private readonly IUnitOfWork unitOfWork;
 
-        public Setting(EF.SampleDbContext dbcontext)
+        public Setting(IUnitOfWork unitOfWork)
         {
-            context = dbcontext;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -58,7 +58,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Setting> Get(EF.Setting args)
         {
-            var res = await context.Setting.FirstAsync(x => 
+            var res = await unitOfWork.SettingRepository.Entities.FirstAsync(x => 
             x.Key == args.Key
             && x.Group == args.Group);
             return res;
@@ -66,7 +66,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Setting>> Find(EF.Setting args)
         {
-            var res = await context.Setting.Where(x => x.Group.Contains(args.Group ?? x.Group)).ToListAsync();
+            var res = await unitOfWork.SettingRepository.Entities.Where(x => x.Group.Contains(args.Group ?? x.Group)).ToListAsync();
             return res;
         }
     }
