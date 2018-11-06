@@ -11,11 +11,11 @@ namespace PERI.Prompt.BLL
     [HandleException]
     public class Menu : ISampleData<EF.Menu>
     {
-        private readonly IUnitOfWork unitOfwork;
+        private readonly IUnitOfWork unitOfWork;
 
         public Menu(IUnitOfWork unitOfWork)
         {
-            this.unitOfwork = unitOfwork;
+            this.unitOfWork = unitOfWork;
         }
 
         public Task Activate(int[] ids)
@@ -55,7 +55,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<IEnumerable<EF.Menu>> Find(EF.Menu args)
         {
-            var res = await(from c in unitOfwork.MenuRepository.Entities
+            var res = await(from c in unitOfWork.MenuRepository.Entities
                             .Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem)
                             where c.Name.Contains(args.Name ?? string.Empty)
                             select c).ToListAsync();
@@ -65,7 +65,7 @@ namespace PERI.Prompt.BLL
 
         public async Task<EF.Menu> Get(EF.Menu args)
         {
-            var rec = await unitOfwork.MenuRepository.Entities
+            var rec = await unitOfWork.MenuRepository.Entities
                 .Include(x => x.MenuItem).ThenInclude(x => x.ChildMenuItem)
                 .FirstAsync(x => x.MenuId == args.MenuId);
 
