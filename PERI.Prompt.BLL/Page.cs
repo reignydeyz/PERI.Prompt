@@ -86,7 +86,7 @@ namespace PERI.Prompt.BLL
         {
             return await unitOfWork.PageRepository.Entities
                 .Include(x => x.PagePhoto).ThenInclude(x => x.Photo)
-                .FirstOrDefaultAsync(x => x.Permalink == args.Permalink);
+                .FirstOrDefaultAsync(x => x.Permalink == args.Permalink || x.PageId == args.PageId);
         }
 
         public async Task<Tuple<EF.Page, bool>> GetModel(int id)
