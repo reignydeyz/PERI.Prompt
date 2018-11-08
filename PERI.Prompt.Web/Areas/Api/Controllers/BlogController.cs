@@ -64,7 +64,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
             if (obj != null && obj.DatePublished <= DateTime.Now)
             {
                 dynamic obj1 = new ExpandoObject();
-                obj1.id = obj.BlogId;
+                obj1.blogId = obj.BlogId;
                 obj1.title = obj.Title;
                 obj1.body = obj.Body;
                 obj1.datePublished = obj.DatePublished;
