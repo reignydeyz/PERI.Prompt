@@ -38,6 +38,14 @@ namespace PERI.Prompt.Web
 
             services.AddDbContext<EF.SampleDbContext>(options => options.UseSqlServer(Core.Setting.Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
             services.AddScoped<BLL.IUnitOfWork, BLL.UnitOfWork>();
+
+            // CORS policy
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
         }
 
         public Startup(IHostingEnvironment env)
