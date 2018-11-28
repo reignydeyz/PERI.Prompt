@@ -57,7 +57,6 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                          };
             
             return Json(obj1);
-            
         }
     }
 }
