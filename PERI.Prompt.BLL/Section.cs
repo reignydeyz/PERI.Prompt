@@ -56,10 +56,11 @@ namespace PERI.Prompt.BLL
         public async Task<IEnumerable<EF.Section>> Find(EF.Section args)
         {
             var res = await unitOfWork.SectionRepository.Entities
+                .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
+                .Include(x => x.SectionProperty).ThenInclude(x => x.SectionItemProperty)
                 .Where(x => x.TemplateId == args.TemplateId
                 && x.Name.Contains(args.Name ?? string.Empty))
-                .Include(x => x.Template)
-                .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemProperty).ToListAsync();
+                .ToListAsync();
 
             return res;
         }
@@ -67,8 +68,8 @@ namespace PERI.Prompt.BLL
         public async Task<EF.Section> Get(EF.Section args)
         {
             var rec = await unitOfWork.SectionRepository.Entities
-                .Include(x => x.Template)
-                .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemProperty)
+                .Include(x => x.SectionItem).ThenInclude(x => x.SectionItemPhoto).ThenInclude(x => x.Photo)
+                .Include(x => x.SectionProperty).ThenInclude(x => x.SectionItemProperty)
                 .FirstOrDefaultAsync(x => x.SectionId == args.SectionId);
 
             return rec;

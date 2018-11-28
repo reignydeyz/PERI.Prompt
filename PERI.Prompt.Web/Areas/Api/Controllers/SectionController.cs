@@ -53,7 +53,12 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                              r.Title,
                              r.Body,
                              Photo = r.SectionItemPhoto.FirstOrDefault() == null ? "" : r.SectionItemPhoto.First().Photo.Url,
-                             Properties = r.SectionItemProperty.ToList()
+                             Properties = from r1 in r.SectionItemProperty
+                                          select new
+                                          {
+                                              r1.SectionProperty.Name,
+                                              r1.Value
+                                          }
                          };
             
             return Json(obj1);
