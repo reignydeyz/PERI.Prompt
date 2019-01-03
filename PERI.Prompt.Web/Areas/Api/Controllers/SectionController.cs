@@ -43,25 +43,24 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var obj = await new BLL.Section(unitOfWork).Get(new EF.Section { SectionId = id });
-                        
-            dynamic obj1 = new ExpandoObject();
-            obj1.sectionId = obj.SectionId;
-            obj1.name = obj.Name;
-            obj1.items = from r in obj.SectionItem
-                         select new
-                         {
-                             r.Title,
-                             r.Body,
-                             Photo = r.SectionItemPhoto.FirstOrDefault() == null ? "" : r.SectionItemPhoto.First().Photo.Url,
-                             Properties = from r1 in r.SectionItemProperty
-                                          select new
-                                          {
-                                              r1.SectionProperty.Name,
-                                              r1.Value
-                                          }
-                         };
-            
-            return Json(obj1);
+
+            return Json(new {
+                sectionId = obj.SectionId,
+                name = obj.Name,
+                items = from r in obj.SectionItem
+                        select new
+                        {
+                            r.Title,
+                            r.Body,
+                            Photo = r.SectionItemPhoto.FirstOrDefault() == null ? "" : r.SectionItemPhoto.First().Photo.Url,
+                            Properties = from r1 in r.SectionItemProperty
+                                         select new
+                                         {
+                                             r1.SectionProperty.Name,
+                                             r1.Value
+                                         }
+                        }
+            });
         }
     }
 }

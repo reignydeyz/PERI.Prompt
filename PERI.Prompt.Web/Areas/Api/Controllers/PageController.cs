@@ -49,16 +49,16 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
 
             if (obj != null)
             {
-                dynamic obj1 = new ExpandoObject();
-                obj1.pageId = obj.PageId;
-                obj1.title = obj.Title;
-                obj1.content = obj.Content;
-                obj1.createdBy = obj.CreatedBy;
-                obj1.dateCreated = obj.DateCreated;
-                obj1.modifiedBy = obj.ModifiedBy;
-                obj1.dateModified = obj.DateModified;
-                obj1.photoUrl = obj.PagePhoto.FirstOrDefault() == null ? "" : obj.PagePhoto.First().Photo.Url;
-                return Json(obj1);
+                return Json(new {
+                    pageId = obj.PageId,
+                    title = obj.Title,
+                    content = obj.Content,
+                    createdBy = obj.CreatedBy,
+                    dateCreated = obj.DateCreated,
+                    modifiedBy = obj.ModifiedBy,
+                    dateModified = obj.DateModified,
+                    photoUrl = obj.PagePhoto.FirstOrDefault() == null ? "" : obj.PagePhoto.First().Photo.Url
+                });
             }
             else
                 return StatusCode(403);

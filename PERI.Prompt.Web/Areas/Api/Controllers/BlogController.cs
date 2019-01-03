@@ -50,11 +50,10 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
             var page = Convert.ToInt16(Request.Query["page"]);
             var pager = new Core.Pager(res.Count(), page == 0 ? 1 : page);
 
-            dynamic obj1 = new ExpandoObject();
-            obj1.blogs = res.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize).ToList();
-            obj1.pager = pager;
-
-            return Json(obj1);
+            return Json(new {
+                blogs = res.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize).ToList(),
+                pager = pager
+            });
         }
 
         [HttpGet]
@@ -65,17 +64,17 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
 
             if (obj != null && obj.DatePublished <= DateTime.Now)
             {
-                dynamic obj1 = new ExpandoObject();
-                obj1.blogId = obj.BlogId;
-                obj1.title = obj.Title;
-                obj1.body = obj.Body;
-                obj1.datePublished = obj.DatePublished;
-                obj1.createdBy = obj.CreatedBy;
-                obj1.dateCreated = obj.DateCreated;
-                obj1.modifiedBy = obj.ModifiedBy;
-                obj1.dateModified = obj.DateModified;
-                obj1.photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : obj.BlogPhoto.First().Photo.Url;
-                return Json(obj1);
+                return Json(new {
+                    blogId = obj.BlogId,
+                    title = obj.Title,
+                    body = obj.Body,
+                    datePublished = obj.DatePublished,
+                    createdBy = obj.CreatedBy,
+                    dateCreated = obj.DateCreated,
+                    modifiedBy = obj.ModifiedBy,
+                    dateModified = obj.DateModified,
+                    photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : obj.BlogPhoto.First().Photo.Url
+                });
             }
             else
                 return StatusCode(403);
