@@ -35,7 +35,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                           r.DateCreated,
                           r.DateModified,
                           r.ModifiedBy,
-                          PhotoUrl = r.PagePhoto.FirstOrDefault() == null ? "" : r.PagePhoto.First().Photo.Url
+                          PhotoUrl = r.PagePhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + r.PagePhoto.First().Photo.Url
                       };
 
             return Json(res);

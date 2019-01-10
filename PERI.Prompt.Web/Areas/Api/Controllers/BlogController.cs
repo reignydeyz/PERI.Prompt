@@ -73,7 +73,8 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                     dateCreated = obj.DateCreated,
                     modifiedBy = obj.ModifiedBy,
                     dateModified = obj.DateModified,
-                    photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : obj.BlogPhoto.First().Photo.Url
+                    photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + obj.BlogPhoto.First().Photo.Url,
+                    tags = obj.BlogTag.Select(x => x.Tag.Name)
                 });
             }
             else
