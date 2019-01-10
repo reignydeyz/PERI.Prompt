@@ -2,7 +2,7 @@
 
 **A simple CMS built in ASP.Net Core**
 
-PERI.Blogger is our entry to having a simple web application that can run on Windows, Linux and Mac with the power of .Net Core. The project also aims to provide simple solution/architecture to perform algorithms using the new framework.
+PERI.Prompt is our entry to having a simple web application that can run on Windows, Linux and Mac with the power of .Net Core. The project also aims to provide simple solution/architecture to perform algorithms using the new framework.
 
 ## Getting Started
 
@@ -43,6 +43,8 @@ Solution structure:
 - PERI.Prompt.EF
 	- Contains the EntityFramework module
 	- All of the data-manipulations were done here
+- PERI.Prompt.Repository
+	- Interfaces for the Repository Pattern
 - PERI.Prompt.Ext.*
 	- External APIs
 	- Uses .NET Standard
