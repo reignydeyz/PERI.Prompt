@@ -34,5 +34,17 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(EF.Section args)
+        {
+            var template = (await new BLL.Template(unitOfWork).Find(new EF.Template())).Where(x => x.DateInactive == null).First();
+            args.TemplateId = template.TemplateId;
+
+            ViewData["Title"] = "Sections";
+            ViewBag.Data = await new BLL.Section(unitOfWork).Find(args);
+
+            return View();
+        }
     }
 }

@@ -42,7 +42,7 @@ namespace PERI.Prompt.Web.Areas.Main.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(EF.Blog args)
+        public async Task<IActionResult> Index([Bind(Prefix = "Item1")] EF.Blog args)
         {
             ViewData["Title"] = "Blogs";
             ViewBag.Data = await new BLL.Blog(unitOfWork).Find(args);

@@ -75,7 +75,8 @@ namespace PERI.Prompt.BLL
         public async Task<IEnumerable<EF.Page>> Find(EF.Page args)
         {
             var res = await (from c in unitOfWork.PageRepository.Entities
-                                where c.Permalink.Contains(args.Content ?? string.Empty)
+                                where c.Title.Contains(args.Title ?? string.Empty)
+                                && c.Permalink.Contains(args.Content ?? string.Empty)
                                 && c.CreatedBy == (args.CreatedBy ?? c.CreatedBy)
                                 select c).ToListAsync();
 

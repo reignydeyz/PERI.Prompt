@@ -30,5 +30,14 @@ namespace PERI.Prompt.Web.Areas.Admin.Controllers
 
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(EF.Menu args)
+        {
+            ViewData["Title"] = "Menus";
+            ViewBag.Data = await new BLL.Menu(unitOfWork).Find(args);
+
+            return View();
+        }
     }
 }

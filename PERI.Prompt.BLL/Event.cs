@@ -77,7 +77,7 @@ namespace PERI.Prompt.BLL
         {
             var res = await (from c in unitOfWork.EventRepository.Entities
                              .Include(x => x.EventPhoto).ThenInclude(x => x.Photo)
-                             where (c.Name.Contains(args.Name ?? string.Empty) || c.Description.Contains(args.Description ?? string.Empty))
+                             where (c.Name.Contains(args.Name ?? string.Empty) && c.Description.Contains(args.Description ?? string.Empty))
                              select c).ToListAsync();
 
             return res;
