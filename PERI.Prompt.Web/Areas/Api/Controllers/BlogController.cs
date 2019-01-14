@@ -44,13 +44,14 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                           r.DateCreated,
                           r.ModifiedBy,
                           r.DateModified,
-                          PhotoUrl = r.BlogPhoto.FirstOrDefault() == null ? "" : r.BlogPhoto.First().Photo.Url
+                          PhotoUrl = r.BlogPhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + r.BlogPhoto.First().Photo.Url
                       };
 
             var page = Convert.ToInt16(Request.Query["page"]);
             var pager = new Core.Pager(res.Count(), page == 0 ? 1 : page);
 
             return Json(new {
+                category = new { category.CategoryId, category.Name },
                 blogs = res.Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize).ToList(),
                 pager = pager
             });
