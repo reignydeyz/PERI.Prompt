@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                       {
                           r.BlogId,
                           r.Title,
-                          r.Body,
+                          Body = Regex.Replace(r.Body, "<.*?>", String.Empty),
                           r.DatePublished,
                           r.CreatedBy,
                           r.DateCreated,
