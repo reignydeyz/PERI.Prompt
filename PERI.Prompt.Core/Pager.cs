@@ -53,5 +53,8 @@ namespace PERI.Prompt.Core
         public int TotalPages { get; private set; }
         public int StartPage { get; private set; }
         public int EndPage { get; private set; }
+
+        // Added for special purpose
+        public int[] PageIndices { get; private set; }
     }
 }
