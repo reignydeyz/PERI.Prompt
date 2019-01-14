@@ -45,7 +45,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                           r.DateCreated,
                           r.ModifiedBy,
                           r.DateModified,
-                          PhotoUrl = r.BlogPhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + r.BlogPhoto.First().Photo.Url
+                          PhotoUrl = r.BlogPhoto.FirstOrDefault() == null ? "" : $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/" + r.BlogPhoto.First().Photo.Url
                       };
 
             var page = Convert.ToInt16(Request.Query["page"]);
@@ -75,7 +75,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                     dateCreated = obj.DateCreated,
                     modifiedBy = obj.ModifiedBy,
                     dateModified = obj.DateModified,
-                    photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + obj.BlogPhoto.First().Photo.Url,
+                    photoUrl = obj.BlogPhoto.FirstOrDefault() == null ? "" : $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/" + obj.BlogPhoto.First().Photo.Url,
                     tags = obj.BlogTag.Select(x => x.Tag.Name)
                 });
             }

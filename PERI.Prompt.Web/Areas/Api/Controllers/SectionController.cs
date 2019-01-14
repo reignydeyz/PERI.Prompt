@@ -52,7 +52,7 @@ namespace PERI.Prompt.Web.Areas.Api.Controllers
                         {
                             r.Title,
                             r.Body,
-                            Photo = r.SectionItemPhoto.FirstOrDefault() == null ? "" : Request.Scheme + "://" + Request.Host.Value + "/" + r.SectionItemPhoto.First().Photo.Url,
+                            Photo = r.SectionItemPhoto.FirstOrDefault() == null ? "" : $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/" + r.SectionItemPhoto.First().Photo.Url,
                             Properties = from r1 in r.SectionItemProperty
                                          select new
                                          {
